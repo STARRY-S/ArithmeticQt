@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <iostream>
+
 #include <QLayout>
 #include <QMainWindow>
 #include <QPushButton>
@@ -12,9 +14,8 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QToolBar>
-#include <cstdio>
-#include <iostream>
 #include <QtWidgets>
+#include "arthmetic.h"
 
 class QPushButton;
 
@@ -65,6 +66,8 @@ private:
 	void createRightPage();
     	void createMenus();
 	void createActions();
+
+	void init();
 
 private slots:
 	// 重新出题

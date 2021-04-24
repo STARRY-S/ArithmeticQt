@@ -4,23 +4,32 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 	this->setWindowTitle(tr("四则运算计算器"));
-	this->resize(1000, 500);
+	this->resize(1000, 600);
 	setMinimumSize(700, 400);
+	createActions();
+	createMenus();
 	createDefaultPage();
 	setCentralWidget(startupPage);
 }
 
+/*
+ * 生成题目，初始化设置，初始化年级为3年级
+ */
+void MainWindow::init()
+{
+	;
+}
+
 void MainWindow::createDefaultPage()
 {
-	createActions();
-	createMenus();
 	createRightPage();
 	createLeftPage();
 
 	startupPage = new QWidget;
 	mainLayout = new QGridLayout;
-	mainLayout->addWidget(leftGroupBox, 0, 0);
-	mainLayout->addWidget(rightGroupBox, 0, 1);
+	mainLayout->addWidget(leftGroupBox, 0, 0, 1, 5);
+	mainLayout->addWidget(rightGroupBox, 0, 5, 1, 1);
+	// mainLayout->
 	startupPage->setLayout(mainLayout);
 }
 
@@ -52,24 +61,24 @@ void MainWindow::createActions()
 	openAct = new QAction(tr("打开文件"));
 	saveAct = new QAction(tr("导出题目至文件"));
 	exitAct = new QAction(tr("退出"));
-	connect(initAct, &QAction::triggered, this, &MainWindow::initNew);
-	connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
-	connect(saveAct, &QAction::triggered, this, &MainWindow::saveFile);
-	connect(exitAct, &QAction::triggered, this, &MainWindow::close);
-
+	connect(initAct, SIGNAL(triggered()), this, SLOT(initNew()));
+	connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
+	connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
+	connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
 	// 编辑
 	clearAnsAct = new QAction(tr("清空作答区域"));
 	clearLogAct = new QAction(tr("清空历史记录"));
 	clearAllAct = new QAction(tr("清空全部"));
-	connect(clearAnsAct, &QAction::triggered, this, &MainWindow::clearAns);
-	connect(clearLogAct, &QAction::triggered, this, &MainWindow::clearLog);
-	connect(clearAllAct, &QAction::triggered, this, &MainWindow::clearAll);
+	connect(clearAnsAct, SIGNAL(triggered()), this, SLOT(clearAns()));
+	connect(clearLogAct, SIGNAL(triggered()), this, SLOT(clearLog()));
+	connect(clearAllAct, SIGNAL(triggered()), this, SLOT(clearAll()));
 
+	// About
 	aboutAct = new QAction(tr("四则运算"));
 	aboutQtAct = new QAction(tr("About Qt"));
-	connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
-	connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
+	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+	connect(aboutQtAct, SIGNAL(triggered()), this, SLOT(aboutQt()));
 
 }
 
@@ -117,16 +126,12 @@ void MainWindow::createRightPage()
 	checkBoxs[4] = new QCheckBox("除法");
 	checkBoxs[5] = new QCheckBox("混合运算（无括号）");
 
-	// QCheckBox *selectAll = new QCheckBox("全选");
-
 	QGridLayout *operationsLayout = new QGridLayout;
 	for (int i = 0; i < 6; i++) {
-		// checkBoxs[i]->setStyleSheet("color: rgb(169,157,157)");
-		// checkBoxs[i]->setFont(QFont("楷体", 18));
 		operationsLayout->addWidget(checkBoxs[i], i / 3, i % 3);
+		connect(checkBoxs[i], SIGNAL(clicked()), this,
+			SLOT(settingChanged()));
 	}
-	// operationsLayout->addWidget(selectAll, 2, 2);
-	// operationsLayout->addWidget(selectOff, 2, 1);
 	operationsGroupBox->setLayout(operationsLayout);
 
 	QGroupBox *selectGradeBox = new QGroupBox("难度");
@@ -140,6 +145,8 @@ void MainWindow::createRightPage()
 	for (int i = 0; i < 6; i++)
 	{
 		selectGradeLayout->addWidget(gradeRbutton[i], i / 3, i % 3);
+		connect(gradeRbutton[i], SIGNAL(clicked()), this,
+			SLOT(gradeChanged()));
 	}
 	selectGradeBox->setLayout(selectGradeLayout);
 	rightLayout->addWidget(selectGradeBox, 1, 0, 1, 4);
@@ -152,86 +159,85 @@ void MainWindow::createRightPage()
 	answerButton = new QPushButton("结果显示");
 	recalcButton = new QPushButton("重新出题");
 	exitButton = new QPushButton("退出");
-	// QPushButton *exitButton = new QPushButton("退出");
 
 	rightLayout->addWidget(calcButton, 3, 0, 1, 1);
 	rightLayout->addWidget(answerButton, 3, 1, 1, 1);
 	rightLayout->addWidget(recalcButton, 3, 2, 1, 1);
 	rightLayout->addWidget(exitButton, 3, 3, 1, 1);
 
-	connect(calcButton, &QPushButton::clicked, this,
-		&MainWindow::checkAnswer);
-	connect(answerButton, &QPushButton::clicked, this,
-		&MainWindow::showAnswer);
-	connect(recalcButton, &QPushButton::clicked, this,
-		&MainWindow::initNew);
-	connect(exitButton, &QPushButton::clicked, this,
-		&MainWindow::close);
+	connect(calcButton, SIGNAL(clicked()), this, SLOT(checkAnswer()));
+	connect(answerButton, SIGNAL(clicked()), this, SLOT(showAnswer()));
+	connect(recalcButton, SIGNAL(clicked()), this, SLOT(initNew()));
+	connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
 	rightGroupBox->setLayout(rightLayout);
 }
 
 
-MainWindow::~MainWindow()
-{
-	;
-}
+MainWindow::~MainWindow() { }
 
 void MainWindow::initNew()
 {
-	std::cout << "生成新的题目" << std::endl;
+	std::cout<< "SLOT_LOG: 生成新的题目" << std::endl;
 }
 
 void MainWindow::openFile()
 {
-	std::cout << "打开文件" << std::endl;
+	std::cout<< "SLOT_LOG: 打开文件" << std::endl;
+	QString fileName = QFileDialog::getOpenFileName(this,
+    		tr("打开文件"), tr(".txt"));
+	answerTextEdit->setText(fileName);
 }
 
 void MainWindow::saveFile()
 {
-	std::cout << "保存题目至文件" << std::endl;
+	std::cout<< "SLOT_LOG: 保存题目至文件" << std::endl;
 }
 
 void MainWindow::clearAns()
 {
-	std::cout << "清空答案" << std::endl;
+	std::cout<< "SLOT_LOG: 清空答案" << std::endl;
 }
 
 void MainWindow::clearLog()
 {
-	std::cout << "清空做题记录" << std::endl;
+	std::cout<< "SLOT_LOG: 清空做题记录" << std::endl;
 }
 
 void MainWindow::clearAll()
 {
-	std::cout << "清除全部" << std::endl;
+	std::cout<< "SLOT_LOG: 清除全部" << std::endl;
 }
 
 void MainWindow::about()
 {
-	std::cout << "关于此软件" << std::endl;
+	std::cout<< "SLOT_LOG: 关于此软件" << std::endl;
 }
 
 void MainWindow::aboutQt()
 {
-	std::cout << "关于Qt" << std::endl;
+	std::cout<< "SLOT_LOG: 关于Qt" << std::endl;
 }
 
 void MainWindow::settingChanged()
 {
-	std::cout << "设置被修改" << std::endl;
+	std::cout<< "SLOT_LOG: 设置被修改" << std::endl;
 }
 
+/*
+ * 年级被修改，当修改年级后触发此函数
+ * 需要手动判断用户修改到了哪个年级
+ */
 void MainWindow::gradeChanged()
 {
-	std::cout << "年级被修改" << std::endl;
+	std::cout<< "SLOT_LOG: 年级被修改" << std::endl;
 }
 
 void MainWindow::checkAnswer()
 {
-	std::cout << "对答案" << std::endl;
+	std::cout<< "SLOT_LOG: 对答案" << std::endl;
 }
 
 void MainWindow::showAnswer()
 {
-	std::cout << "显示答案" << std::endl;
+	std::cout<< "SLOT_LOG: 显示答案" << std::endl;
 }
