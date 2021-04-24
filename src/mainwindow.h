@@ -17,7 +17,15 @@
 #include <QtWidgets>
 #include "arthmetic.h"
 
-class QPushButton;
+/*
+ * TODO:
+ * MainWindow -- 主窗口类
+ * [x] 主窗体左边为答题区域，右边为设置、记录显示、一些按钮
+ * [x] 状态栏中添加打开文件、导出至文件的功能
+ * [] 一些重要操作(清空作答区域, 清空全部) 需要加一个警告窗
+ * [] 创建帮助弹窗，显示一些使用方法
+ * [] 创建关于弹窗，显示软件版本
+ */
 
 class MainWindow : public QMainWindow
 {
@@ -27,6 +35,8 @@ public:
 	~MainWindow();
 
 private:
+	Arthmetic *arthmetic;
+
 	// Main page
 	QWidget *startupPage;
 	QGridLayout *mainLayout;
@@ -39,7 +49,7 @@ private:
 	// right page
 	QCheckBox *checkBoxs[6];
 	QRadioButton *gradeRbutton[6];
-	QTextEdit *answerTextEdit = new QTextEdit;
+	QTextEdit *answerTextEdit;
 	QPushButton *calcButton;
 	QPushButton *answerButton;
 	QPushButton *recalcButton;

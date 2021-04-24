@@ -22,6 +22,7 @@
 class Arthmetic {
 public:
         Arthmetic();
+        Arthmetic(int);
         ~Arthmetic();
 
 private:

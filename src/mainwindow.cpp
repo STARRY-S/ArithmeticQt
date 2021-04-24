@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 	createMenus();
 	createDefaultPage();
 	setCentralWidget(startupPage);
+	init();
 }
 
 /*
@@ -17,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
  */
 void MainWindow::init()
 {
-	;
+	arthmetic = new Arthmetic(10);
 }
 
 void MainWindow::createDefaultPage()
@@ -93,7 +94,7 @@ void MainWindow::createLeftPage()
 		calculateLineEdit[i] = new QLineEdit;
 		questionLabel[i] = new QLabel;
 		// TODO: 在此处将出的题转换格式显示在屏幕上
-		sprintf(question, "（%d） 100 + 334 / 11 * 33 =", i+1);
+		sprintf(question, "（%d） (10 * 5) + 25 - 30 =", i+1);
 		questionLabel[i]->setText(question);
 		calculateLineEdit[i]->setMaxLength(3);
 		calculateLayout->addWidget(
@@ -133,8 +134,9 @@ void MainWindow::createRightPage()
 			SLOT(settingChanged()));
 	}
 	operationsGroupBox->setLayout(operationsLayout);
+	rightLayout->addWidget(operationsGroupBox, 0, 0, 1, 4);
 
-	QGroupBox *selectGradeBox = new QGroupBox("难度");
+	QGroupBox *selectGradeBox = new QGroupBox("难度设定");
 	QGridLayout *selectGradeLayout = new QGridLayout;
 	gradeRbutton[0] = new QRadioButton("一年级");
 	gradeRbutton[1] = new QRadioButton("二年级");
@@ -151,8 +153,12 @@ void MainWindow::createRightPage()
 	selectGradeBox->setLayout(selectGradeLayout);
 	rightLayout->addWidget(selectGradeBox, 1, 0, 1, 4);
 
-	rightLayout->addWidget(operationsGroupBox, 0, 0, 1, 4);
-	rightLayout->addWidget(answerTextEdit, 2, 0, 1, 4);
+	QLabel *answerLabel = new QLabel("作答记录");
+	rightLayout->addWidget(answerLabel, 2, 0, 1, 1);
+
+	answerTextEdit = new QTextEdit;
+	answerTextEdit->setReadOnly(true);
+	rightLayout->addWidget(answerTextEdit, 3, 0, 1, 4);
 
 	// button
 	calcButton = new QPushButton("对答案");
@@ -160,10 +166,10 @@ void MainWindow::createRightPage()
 	recalcButton = new QPushButton("重新出题");
 	exitButton = new QPushButton("退出");
 
-	rightLayout->addWidget(calcButton, 3, 0, 1, 1);
-	rightLayout->addWidget(answerButton, 3, 1, 1, 1);
-	rightLayout->addWidget(recalcButton, 3, 2, 1, 1);
-	rightLayout->addWidget(exitButton, 3, 3, 1, 1);
+	rightLayout->addWidget(calcButton, 4, 0, 1, 1);
+	rightLayout->addWidget(answerButton, 4, 1, 1, 1);
+	rightLayout->addWidget(recalcButton, 4, 2, 1, 1);
+	rightLayout->addWidget(exitButton, 4, 3, 1, 1);
 
 	connect(calcButton, SIGNAL(clicked()), this, SLOT(checkAnswer()));
 	connect(answerButton, SIGNAL(clicked()), this, SLOT(showAnswer()));
@@ -172,8 +178,10 @@ void MainWindow::createRightPage()
 	rightGroupBox->setLayout(rightLayout);
 }
 
-
-MainWindow::~MainWindow() { }
+MainWindow::~MainWindow()
+{
+	delete arthmetic;
+}
 
 void MainWindow::initNew()
 {
@@ -185,6 +193,7 @@ void MainWindow::openFile()
 	std::cout<< "SLOT_LOG: 打开文件" << std::endl;
 	QString fileName = QFileDialog::getOpenFileName(this,
     		tr("打开文件"), tr(".txt"));
+	// TODO: 向arthmetic类传入文件地址
 	answerTextEdit->setText(fileName);
 }
 
