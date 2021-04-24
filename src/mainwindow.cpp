@@ -3,6 +3,14 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+	// 默认生成加减乘除
+	arthmetic = new Arthmetic();
+	arthmetic->setDifficulty( ARTHMETIC_PLUS
+				| ARTHMETIC_MINUS
+		      		| ARTHMETIC_TIMES
+				| ARTHMETIC_DIVID);
+	arthmetic->firstGenerate(10);
+
 	this->setWindowTitle(tr("四则运算计算器"));
 	this->resize(1000, 600);
 	setMinimumSize(700, 400);
@@ -10,15 +18,52 @@ MainWindow::MainWindow(QWidget *parent)
 	createMenus();
 	createDefaultPage();
 	setCentralWidget(startupPage);
-	init();
+	initSetting();
 }
 
 /*
  * 生成题目，初始化设置，初始化年级为3年级
  */
-void MainWindow::init()
+void MainWindow::initSetting()
 {
-	arthmetic = new Arthmetic(10);
+	unsigned char level = arthmetic->getDifficulty();
+	if (level == 0) {
+		checkBoxs[NOPAR]->setChecked(true);
+	} else {
+		checkBoxs[NOPAR]->setChecked(false);
+	}
+
+	if (level & 0x01) {
+		checkBoxs[PLUS]->setChecked(true);
+	} else {
+		checkBoxs[PLUS]->setChecked(false);
+	}
+	if (level & 0x02) {
+		checkBoxs[MINUS]->setChecked(true);
+	} else {
+		checkBoxs[MINUS]->setChecked(false);
+	}
+	if (level & 0x04) {
+		checkBoxs[TIME]->setChecked(true);
+	} else {
+		checkBoxs[TIME]->setChecked(false);
+	}
+	if (level & 0x08) {
+		checkBoxs[DIVID]->setChecked(true);
+	} else {
+		checkBoxs[DIVID]->setChecked(false);
+	}
+	if (level & 0x10) {
+		checkBoxs[PARENT]->setChecked(true);
+	} else {
+		checkBoxs[PARENT]->setChecked(false);
+	}
+
+	// 暂不支持混合
+	checkBoxs[PARENT]->setCheckable(false);
+	checkBoxs[NOPAR]->setCheckable(false);
+
+
 }
 
 void MainWindow::createDefaultPage()
@@ -88,24 +133,31 @@ void MainWindow::createLeftPage()
 	// calculation
 	leftGroupBox = new QGroupBox;
 	QGridLayout *calculateLayout = new QGridLayout;
-	// TODO: remove char
-	char question[50];
+	QLabel *numberLabel[10];
+	char number[10];
 	for (int i = 0; i < 10; i++) {
 		calculateLineEdit[i] = new QLineEdit;
 		questionLabel[i] = new QLabel;
+		sprintf(number, "（%d）", i+1);
+		numberLabel[i] = new QLabel(number);
 		// TODO: 在此处将出的题转换格式显示在屏幕上
-		sprintf(question, "（%d） (10 * 5) + 25 - 30 =", i+1);
-		questionLabel[i]->setText(question);
-		calculateLineEdit[i]->setMaxLength(3);
+		QString a = arthmetic->getQuestion(i);
+		questionLabel[i]->setText(a);
+		// calculateLineEdit[i]->setMaxLength(8);
+		calculateLayout->addWidget(
+			numberLabel[i],
+			i % 5,
+			(i / 5 == 0) ? 0 : 3
+		);
 		calculateLayout->addWidget(
 			questionLabel[i],
 			i % 5,
-			(i / 5 == 0) ? 0 : 2
+			(i / 5 == 0) ? 1 : 4
 		);
 		calculateLayout->addWidget(
 			calculateLineEdit[i],
 			i % 5,
-			(i / 5) ? 1 : 3
+			(i / 5) ? 2 : 5
 		);
 
 	}
@@ -186,6 +238,12 @@ MainWindow::~MainWindow()
 void MainWindow::initNew()
 {
 	std::cout<< "SLOT_LOG: 生成新的题目" << std::endl;
+	arthmetic->reGenerate();
+	for (int i = 0; i < 10; i++) {
+		// TODO: 在此处将出的题转换格式显示在屏幕上
+		QString a = arthmetic->getQuestion(i);
+		questionLabel[i]->setText(a);
+	}
 }
 
 void MainWindow::openFile()
@@ -194,7 +252,7 @@ void MainWindow::openFile()
 	QString fileName = QFileDialog::getOpenFileName(this,
     		tr("打开文件"), tr(".txt"));
 	// TODO: 向arthmetic类传入文件地址
-	answerTextEdit->setText(fileName);
+	std::cout << "OpenFile: " << fileName.toStdString() << '\n';
 }
 
 void MainWindow::saveFile()
@@ -205,16 +263,22 @@ void MainWindow::saveFile()
 void MainWindow::clearAns()
 {
 	std::cout<< "SLOT_LOG: 清空答案" << std::endl;
+	for (int i = 0; i < 10; i++) {
+		calculateLineEdit[i]->setText("");
+	}
 }
 
 void MainWindow::clearLog()
 {
 	std::cout<< "SLOT_LOG: 清空做题记录" << std::endl;
+	answerTextEdit->setText("");
 }
 
 void MainWindow::clearAll()
 {
 	std::cout<< "SLOT_LOG: 清除全部" << std::endl;
+	clearAns();
+	clearLog();
 }
 
 void MainWindow::about()
@@ -230,6 +294,29 @@ void MainWindow::aboutQt()
 void MainWindow::settingChanged()
 {
 	std::cout<< "SLOT_LOG: 设置被修改" << std::endl;
+	unsigned char oldLevel = arthmetic->getDifficulty();
+	unsigned char newLevel = 0x00;
+
+	if (checkBoxs[PLUS]->isChecked()) {
+		newLevel |= ARTHMETIC_PLUS;
+	}
+	if (checkBoxs[MINUS]->isChecked()) {
+		newLevel |= ARTHMETIC_MINUS;
+	}
+	if (checkBoxs[TIME]->isChecked()) {
+		newLevel |= ARTHMETIC_TIMES;
+	}
+	if (checkBoxs[DIVID]->isChecked()) {
+		newLevel |= ARTHMETIC_DIVID;
+	}
+	if (checkBoxs[PARENT]->isChecked()) {
+		newLevel |= ARTHMETIC_PAREN;
+	}
+	if (checkBoxs[NOPAR]->isChecked()) {
+		newLevel |= ARTHMETIC_NOPAR;
+	}
+	printf("Change state from 0X%2X to 0X%2X\n", oldLevel, newLevel);
+	arthmetic->setDifficulty(newLevel);
 }
 
 /*

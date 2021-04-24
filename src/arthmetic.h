@@ -2,7 +2,11 @@
 #define ARTHMETIC_H
 
 #include <iostream>
+#include <string>
 #include <cstdio>
+#include <vector>
+#include <QRandomGenerator>
+#include <QString>
 
 /*
  * TODO:
@@ -19,14 +23,34 @@
  *    将其存储到字符串数组中
  */
 
+static const unsigned char ARTHMETIC_PLUS  = 0x01;
+static const unsigned char ARTHMETIC_MINUS = 0x02;
+static const unsigned char ARTHMETIC_TIMES = 0x04;
+static const unsigned char ARTHMETIC_DIVID = 0x08;
+static const unsigned char ARTHMETIC_PAREN = 0x10;
+static const unsigned char ARTHMETIC_NOPAR = 0x20;
+
 class Arthmetic {
 public:
         Arthmetic();
-        Arthmetic(int);
+        // Arthmetic(int, int);
         ~Arthmetic();
 
-private:
+        QString getQuestion(int i);
+        void reGenerate();
+        void firstGenerate(int length);
+        unsigned char getDifficulty();
+        void setDifficulty(unsigned char);
 
+private:
+        unsigned char difficulty;
+        std::vector<QString> questionList;
+
+        QString generateBySet(unsigned char set);
+        QString generateByGrade(int grade);
+        int getRandNum(unsigned int a);
+        int getRandNum(unsigned int a, unsigned int b);
+        void checkLabel();
 
 protected:
 

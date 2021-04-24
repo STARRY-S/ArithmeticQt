@@ -35,7 +35,15 @@ public:
 	~MainWindow();
 
 private:
+	const int PLUS   = 0;
+	const int MINUS  = 3;
+	const int TIME   = 1;
+	const int DIVID  = 4;
+	const int PARENT = 2;
+	const int NOPAR  = 5;
+
 	Arthmetic *arthmetic;
+	int currentGrade;	// 当前选中的年级
 
 	// Main page
 	QWidget *startupPage;
@@ -77,7 +85,7 @@ private:
     	void createMenus();
 	void createActions();
 
-	void init();
+	void initSetting();
 
 private slots:
 	// 重新出题
