@@ -3,6 +3,10 @@
 Arthmetic::Arthmetic()
 {
 	// Arthmetic(10, 1);
+	questionNum = 0;
+	maxNum = minNum = 0;
+	hasNegative = hasPoint = false;
+	set = 0x00;
 }
 
 Arthmetic::~Arthmetic()
@@ -12,7 +16,7 @@ Arthmetic::~Arthmetic()
 
 QString Arthmetic::getQuestion(int i)
 {
-	if (i >= questionList.size()) {
+	if (i >= (int) questionList.size()) {
 		std::cerr << "Error: out of range." << std::endl;
 		return nullptr;
 	}
@@ -22,10 +26,11 @@ QString Arthmetic::getQuestion(int i)
 	a.replace("/", " ÷ ");
 	a.replace("+", " + ");
 	a.replace("-", " − ");
-	a.append(" =");
+	// a.append(" =");
 	return a;
 }
 
+/* 按照年级生成运算题 */
 QString Arthmetic::generateByGrade(int grade)
 {
 	unsigned char label = 0x00;
@@ -60,15 +65,17 @@ QString Arthmetic::generateByGrade(int grade)
 	return generateBySet(label);
 }
 
+// 指定加减乘除生成运算题
 QString Arthmetic::generateBySet(unsigned char set)
 {
 	// 这个函数没想到更好的实现算法
 	// 只能一个一个按位与
 	// 代码量+++++艹艹艹
 	char temp[128];
-	int a = getRandNum(10, 100);
-	int b = getRandNum(10, 100);
+	int a = getRandNum(minNum, maxNum);
+	int b = getRandNum(minNum, maxNum);
 	if (!set) {
+		// 默认只生成加法
 		set = 0x01;
 	}
 
@@ -80,10 +87,10 @@ QString Arthmetic::generateBySet(unsigned char set)
 	}
 	case 0x02:	// 只生成减法
 	{
-		// while (a < b) {	// 负数
-		// 	a = getRandNum(100);
-		// 	b = getRandNum(100);
-		// }
+		while (!hasNegative && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d-%d", a, b);
 		break;
 	}
@@ -94,10 +101,10 @@ QString Arthmetic::generateBySet(unsigned char set)
 	}
 	case 0x08:	// 只生成除法
 	{
-		// while (a % b != 0) {	// 只要求整除
-		// 	a = getRandNum(100);
-		// 	b = getRandNum(100);
-		// }
+		while (!hasPoint && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d/%d", a, b);
 		break;
 	}
@@ -105,9 +112,9 @@ QString Arthmetic::generateBySet(unsigned char set)
 	case 0x03:	// 加减
 	{
 		int o = getRandNum(1);
-		while (o && a < b) {	// 负数
-			a = getRandNum(100);
-			b = getRandNum(100);
+		while (!hasNegative && o && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '-' : '+', b);
@@ -117,10 +124,10 @@ QString Arthmetic::generateBySet(unsigned char set)
 	{
 		printf("乘除\n");
 		int o = getRandNum(1);
-		// while (o && a % b != 0) {	// 只要求整除
-		// 	a = getRandNum(100);
-		// 	b = getRandNum(100);
-		// }
+		while (!hasPoint && o == 0 && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '/' : '*', b);
 		break;
@@ -135,6 +142,10 @@ QString Arthmetic::generateBySet(unsigned char set)
 	case 0b0110:	// 减乘
 	{
 		int o = getRandNum(1);
+		while (!hasNegative && o && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '-' : '*', b);
 		break;
@@ -150,12 +161,20 @@ QString Arthmetic::generateBySet(unsigned char set)
 		} else if (o == 2) {
 			c = '*';
 		}
+		while (!hasNegative && o == 1 && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a, c, b);
 		break;
 	}
 	case 0b1001:	// 加除
 	{
 		int o = getRandNum(1);
+		while (!hasPoint && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '+' : '/', b);
 		break;
@@ -163,6 +182,14 @@ QString Arthmetic::generateBySet(unsigned char set)
 	case 0b1010:	// 减除
 	{
 		int o = getRandNum(1);
+		while (!hasNegative && o == 0 && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
+		while (!hasPoint && o == 1 && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '-' : '/', b);
 		break;
@@ -178,6 +205,15 @@ QString Arthmetic::generateBySet(unsigned char set)
 		} else if (o == 2) {
 			c = '/';
 		}
+
+		while (!hasNegative && o == 1 && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
+		while (!hasPoint && o == 2 && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a, c, b);
 		break;
 	}
@@ -192,6 +228,11 @@ QString Arthmetic::generateBySet(unsigned char set)
 		} else if (o == 2) {
 			c = '/';
 		}
+
+		while (!hasPoint && o == 2 && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
 		sprintf(temp, "%d%c%d", a, c, b);
 		break;
 	}
@@ -205,6 +246,14 @@ QString Arthmetic::generateBySet(unsigned char set)
 			c = '*';
 		} else if (o == 2) {
 			c = '/';
+		}
+		while (!hasNegative && o == 0 && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
+		while (!hasPoint && o == 2 && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
 		break;
@@ -221,6 +270,15 @@ QString Arthmetic::generateBySet(unsigned char set)
 			c = '*';
 		} else if (o == 3) {
 			c = '/';
+		}
+
+		while (!hasNegative && o == 1 && a < b) {	// 负数
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
+		}
+		while (!hasPoint && o == 3 && a % b != 0) {	// 只要求整除
+			a = getRandNum(minNum, maxNum);
+			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
 		break;
@@ -243,31 +301,22 @@ QString Arthmetic::generateBySet(unsigned char set)
 	return qs;
 }
 
-void Arthmetic::setDifficulty(unsigned char a)
+void Arthmetic::setSet(unsigned char a)
 {
-	difficulty = a;
+	set = a;
 }
 
-unsigned char Arthmetic::getDifficulty()
+unsigned char Arthmetic::getSet()
 {
-	return difficulty;
+	return set;
 }
 
-void Arthmetic::firstGenerate(int length)
+// 生成题目
+void Arthmetic::generate()
 {
-	if (questionList.size() != 0)
-		return;
-
-	for (int i = 0; i < length; i++) {
-		questionList.push_back(generateBySet(difficulty));
-	}
-}
-
-void Arthmetic::reGenerate()
-{
-	int length = questionList.size();
-	for (int i = 0; i < length; i++) {
-		questionList[i] = generateBySet(difficulty);
+	questionList.resize(questionNum);
+	for (int i = 0; i < questionNum; i++) {
+		questionList[i] = generateBySet(set);
 	}
 }
 
@@ -279,4 +328,24 @@ int Arthmetic::getRandNum(unsigned int a)
 int Arthmetic::getRandNum(unsigned int a, unsigned int b)
 {
 	return QRandomGenerator::global()->generate() % (b-a+1) + a;
+}
+
+int Arthmetic::getQuestionNum()
+{
+	return questionNum;
+}
+
+// 题目数量
+void Arthmetic::setQuestionNum(int a)
+{
+	questionNum = a;
+}
+
+// 难度设定
+void Arthmetic::setDifficulty(int max, int min, bool n, bool p)
+{
+	this->maxNum = max;
+	this->minNum = min;
+	this->hasNegative = n;
+	this->hasPoint = p;
 }

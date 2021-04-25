@@ -15,6 +15,7 @@
 #include <QVBoxLayout>
 #include <QToolBar>
 #include <QtWidgets>
+#include <vector>
 #include "arthmetic.h"
 
 /*
@@ -26,6 +27,16 @@
  * [] 创建帮助弹窗，显示一些使用方法
  * [] 创建关于弹窗，显示软件版本
  */
+
+static const int DEFAULT_QUESTION_NUM = 20;
+static const int DEFAULT_MAX_NUM = 100;
+static const int DEFAULT_MIN_NUM = 10;
+static const bool HAS_POINT = false;
+static const bool HAS_NEGATIVE = false;
+static const int DEFAULT_WIDTH = 1280;
+static const int DEFAULT_HEIGHT = 720;
+static const int MIN_WIDTH = 400;
+static const int MIN_HEIGHT = 300;
 
 class MainWindow : public QMainWindow
 {
@@ -49,15 +60,27 @@ private:
 	QWidget *startupPage;
 	QGridLayout *mainLayout;
 	QGroupBox *rightGroupBox;
-	QGroupBox *leftGroupBox;
+	// QGroupBox *leftGroupBox;
+	QScrollArea *leftScrollArea;
+	// QScrollArea *rightScrollArea;
 
 	// left page
-	QLabel *questionLabel[10];
-	QLineEdit *calculateLineEdit[10];
+	// 题目数量可变
+	std::vector<QLabel*> questionLabel;
+	std::vector<QLineEdit*> calculateLineEdit;
+	std::vector<QLabel*> numberLabel;
+
+	QGridLayout *calculateLayout;
+	QGroupBox *leftGroupBox;
 	// right page
 	QCheckBox *checkBoxs[6];
-	QRadioButton *gradeRbutton[6];
-	QTextEdit *answerTextEdit;
+	QSpinBox *numSpinBox;
+	QSpinBox *maxNum;		// 生成随机数的最大值
+	QSpinBox *minNum;		// 随机数最小值
+	QCheckBox *hasNegative; 	// 结果是否存在负数运算
+	QCheckBox *hasFloat;		// 结果是否可以有浮点数
+	QTextEdit *answerTextEdit;	// 作答记录
+	// right page buttons
 	QPushButton *calcButton;
 	QPushButton *answerButton;
 	QPushButton *recalcButton;
@@ -101,7 +124,7 @@ private slots:
 	void aboutQt();
 
 	void settingChanged();	// 设置被修改
-	void gradeChanged();	// 年级修改
+	void diffiChanged();	// 年级修改
 	void checkAnswer();	// 对答案
 	void showAnswer();	// 结果显示
 

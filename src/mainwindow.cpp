@@ -5,15 +5,25 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	// 默认生成加减乘除
 	arthmetic = new Arthmetic();
-	arthmetic->setDifficulty( ARTHMETIC_PLUS
+	// 初始化预设为加减乘除
+	arthmetic->setSet( ARTHMETIC_PLUS
 				| ARTHMETIC_MINUS
 		      		| ARTHMETIC_TIMES
 				| ARTHMETIC_DIVID);
-	arthmetic->firstGenerate(10);
+	// 初始化题目数量为20
+	arthmetic->setQuestionNum(DEFAULT_QUESTION_NUM);
+	// 初始化难度
+	arthmetic->setDifficulty(DEFAULT_MAX_NUM,
+				DEFAULT_MIN_NUM,
+				HAS_NEGATIVE,
+				HAS_POINT);
+	// 生成指定数量的题目
+	arthmetic->generate();
 
 	this->setWindowTitle(tr("四则运算计算器"));
-	this->resize(1000, 600);
-	setMinimumSize(700, 400);
+	this->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
+
 	createActions();
 	createMenus();
 	createDefaultPage();
@@ -26,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
  */
 void MainWindow::initSetting()
 {
-	unsigned char level = arthmetic->getDifficulty();
+	unsigned char level = arthmetic->getSet();
 	if (level == 0) {
 		checkBoxs[NOPAR]->setChecked(true);
 	} else {
@@ -62,8 +72,6 @@ void MainWindow::initSetting()
 	// 暂不支持混合
 	checkBoxs[PARENT]->setCheckable(false);
 	checkBoxs[NOPAR]->setCheckable(false);
-
-
 }
 
 void MainWindow::createDefaultPage()
@@ -73,10 +81,135 @@ void MainWindow::createDefaultPage()
 
 	startupPage = new QWidget;
 	mainLayout = new QGridLayout;
-	mainLayout->addWidget(leftGroupBox, 0, 0, 1, 5);
+	mainLayout->addWidget(leftScrollArea, 0, 0, 1, 5);
 	mainLayout->addWidget(rightGroupBox, 0, 5, 1, 1);
 	// mainLayout->
 	startupPage->setLayout(mainLayout);
+}
+
+void MainWindow::createLeftPage()
+{
+	// calculation
+	leftGroupBox = new QGroupBox;
+	leftScrollArea = new QScrollArea;
+	calculateLayout = new QGridLayout;
+	char number[10];
+	for (int i = 0; i < 20; i++) {
+		calculateLineEdit.push_back(new QLineEdit);
+		questionLabel.push_back(new QLabel);
+		sprintf(number, "（%d）", i+1);
+		numberLabel.push_back(new QLabel(number));
+		// TODO: 在此处将出的题转换格式显示在屏幕上
+		QString a = arthmetic->getQuestion(i);
+		questionLabel[i]->setText(a);
+		// calculateLineEdit[i]->setMaxLength(8);
+		calculateLayout->addWidget(
+			numberLabel[i],
+			i % 10,
+			(i / 10 == 0) ? 0 : 3
+		);
+		calculateLayout->addWidget(
+			questionLabel[i],
+			i % 10,
+			(i / 10 == 0) ? 1 : 4
+		);
+		calculateLayout->addWidget(
+			calculateLineEdit[i],
+			i % 10,
+			(i / 10) ? 2 : 5
+		);
+
+	}
+
+	leftGroupBox->setLayout(calculateLayout);
+	leftScrollArea->setWidgetResizable(true);
+	leftScrollArea->setWidget(leftGroupBox);
+}
+
+void MainWindow::createRightPage()
+{
+	rightGroupBox = new QGroupBox;
+	QGridLayout *rightLayout = new QGridLayout;
+	// rightScrollArea = new QScrollArea;
+
+	// operations
+	QGroupBox *operationsGroupBox = new QGroupBox(tr("手动设置"));
+	checkBoxs[0] = new QCheckBox("加法");
+	checkBoxs[1] = new QCheckBox("乘法");
+	checkBoxs[2] = new QCheckBox("混合运算（带括号）");
+	checkBoxs[3] = new QCheckBox("减法");
+	checkBoxs[4] = new QCheckBox("除法");
+	checkBoxs[5] = new QCheckBox("混合运算（无括号）");
+
+	QGridLayout *operationsLayout = new QGridLayout;
+	for (int i = 0; i < 6; i++) {
+		operationsLayout->addWidget(checkBoxs[i], i / 3, i % 3);
+		connect(checkBoxs[i], SIGNAL(clicked()), this,
+			SLOT(settingChanged()));
+	}
+	operationsGroupBox->setLayout(operationsLayout);
+	rightLayout->addWidget(operationsGroupBox, 0, 0, 1, 4);
+
+	QGroupBox *selectDiffBox = new QGroupBox("难度设定");
+	QGridLayout *selectDiffLayout = new QGridLayout;
+
+	QLabel *numberHint = new QLabel("题目数量:");
+	numSpinBox = new QSpinBox;
+	numSpinBox->setRange(10, 100);
+	numSpinBox->setSingleStep(1);
+	numSpinBox->setValue(arthmetic->getQuestionNum());
+	selectDiffLayout->addWidget(numberHint, 0, 0, 1, 1);
+	selectDiffLayout->addWidget(numSpinBox, 0, 1, 1, 4);
+	connect(numSpinBox, SIGNAL(valueChanged(int)), this, SLOT(diffiChanged()));
+
+	QLabel *maxHint = new QLabel("最大值：");
+	maxNum = new QSpinBox;
+	maxNum->setRange(1, 1000);
+	maxNum->setValue(100);
+	QLabel *minHint = new QLabel("最小值：");
+	minNum = new QSpinBox;
+	minNum->setRange(0, 999);
+	minNum->setValue(10);
+	selectDiffLayout->addWidget(maxHint, 1, 0, 1, 1);
+	selectDiffLayout->addWidget(maxNum, 1, 1, 1, 1);
+	selectDiffLayout->addWidget(minHint, 1, 3, 1, 1);
+	selectDiffLayout->addWidget(minNum, 1, 4, 1, 1);
+	connect(maxNum, SIGNAL(valueChanged(int)), this, SLOT(diffiChanged()));
+	connect(minNum, SIGNAL(valueChanged(int)), this, SLOT(diffiChanged()));
+
+	hasNegative = new QCheckBox("结果是否存在负数");
+	hasFloat = new QCheckBox("结果是否存在小数");
+	selectDiffLayout->addWidget(hasNegative, 2, 0, 1, 2);
+	selectDiffLayout->addWidget(hasFloat, 2, 3, 1, 2);
+	connect(hasNegative, SIGNAL(clicked()), this, SLOT(diffiChanged()));
+	connect(hasFloat, SIGNAL(clicked()), this, SLOT(diffiChanged()));
+
+	selectDiffBox->setLayout(selectDiffLayout);
+	rightLayout->addWidget(selectDiffBox, 1, 0, 1, 4);
+
+	QLabel *answerLabel = new QLabel("作答记录");
+	rightLayout->addWidget(answerLabel, 2, 0, 1, 1);
+
+	answerTextEdit = new QTextEdit;
+	answerTextEdit->setReadOnly(true);
+	rightLayout->addWidget(answerTextEdit, 3, 0, 1, 4);
+
+	// button
+	calcButton = new QPushButton("对答案");
+	answerButton = new QPushButton("结果显示");
+	recalcButton = new QPushButton("重新出题");
+	exitButton = new QPushButton("退出");
+
+	rightLayout->addWidget(calcButton, 4, 0, 1, 1);
+	rightLayout->addWidget(answerButton, 4, 1, 1, 1);
+	rightLayout->addWidget(recalcButton, 4, 2, 1, 1);
+	rightLayout->addWidget(exitButton, 4, 3, 1, 1);
+
+	connect(calcButton, SIGNAL(clicked()), this, SLOT(checkAnswer()));
+	connect(answerButton, SIGNAL(clicked()), this, SLOT(showAnswer()));
+	connect(recalcButton, SIGNAL(clicked()), this, SLOT(initNew()));
+	connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
+	rightGroupBox->setLayout(rightLayout);
 }
 
 void MainWindow::createMenus()
@@ -128,108 +261,6 @@ void MainWindow::createActions()
 
 }
 
-void MainWindow::createLeftPage()
-{
-	// calculation
-	leftGroupBox = new QGroupBox;
-	QGridLayout *calculateLayout = new QGridLayout;
-	QLabel *numberLabel[10];
-	char number[10];
-	for (int i = 0; i < 10; i++) {
-		calculateLineEdit[i] = new QLineEdit;
-		questionLabel[i] = new QLabel;
-		sprintf(number, "（%d）", i+1);
-		numberLabel[i] = new QLabel(number);
-		// TODO: 在此处将出的题转换格式显示在屏幕上
-		QString a = arthmetic->getQuestion(i);
-		questionLabel[i]->setText(a);
-		// calculateLineEdit[i]->setMaxLength(8);
-		calculateLayout->addWidget(
-			numberLabel[i],
-			i % 5,
-			(i / 5 == 0) ? 0 : 3
-		);
-		calculateLayout->addWidget(
-			questionLabel[i],
-			i % 5,
-			(i / 5 == 0) ? 1 : 4
-		);
-		calculateLayout->addWidget(
-			calculateLineEdit[i],
-			i % 5,
-			(i / 5) ? 2 : 5
-		);
-
-	}
-
-	leftGroupBox->setLayout(calculateLayout);
-}
-
-void MainWindow::createRightPage()
-{
-	rightGroupBox = new QGroupBox;
-	QGridLayout *rightLayout = new QGridLayout;
-
-	// operations
-	QGroupBox *operationsGroupBox = new QGroupBox(tr("手动设置"));
-	checkBoxs[0] = new QCheckBox("加法");
-	checkBoxs[1] = new QCheckBox("乘法");
-	checkBoxs[2] = new QCheckBox("混合运算（带括号）");
-	checkBoxs[3] = new QCheckBox("减法");
-	checkBoxs[4] = new QCheckBox("除法");
-	checkBoxs[5] = new QCheckBox("混合运算（无括号）");
-
-	QGridLayout *operationsLayout = new QGridLayout;
-	for (int i = 0; i < 6; i++) {
-		operationsLayout->addWidget(checkBoxs[i], i / 3, i % 3);
-		connect(checkBoxs[i], SIGNAL(clicked()), this,
-			SLOT(settingChanged()));
-	}
-	operationsGroupBox->setLayout(operationsLayout);
-	rightLayout->addWidget(operationsGroupBox, 0, 0, 1, 4);
-
-	QGroupBox *selectGradeBox = new QGroupBox("难度设定");
-	QGridLayout *selectGradeLayout = new QGridLayout;
-	gradeRbutton[0] = new QRadioButton("一年级");
-	gradeRbutton[1] = new QRadioButton("二年级");
-	gradeRbutton[2] = new QRadioButton("三年级");
-	gradeRbutton[3] = new QRadioButton("四年级");
-	gradeRbutton[4] = new QRadioButton("五年级");
-	gradeRbutton[5] = new QRadioButton("六年级");
-	for (int i = 0; i < 6; i++)
-	{
-		selectGradeLayout->addWidget(gradeRbutton[i], i / 3, i % 3);
-		connect(gradeRbutton[i], SIGNAL(clicked()), this,
-			SLOT(gradeChanged()));
-	}
-	selectGradeBox->setLayout(selectGradeLayout);
-	rightLayout->addWidget(selectGradeBox, 1, 0, 1, 4);
-
-	QLabel *answerLabel = new QLabel("作答记录");
-	rightLayout->addWidget(answerLabel, 2, 0, 1, 1);
-
-	answerTextEdit = new QTextEdit;
-	answerTextEdit->setReadOnly(true);
-	rightLayout->addWidget(answerTextEdit, 3, 0, 1, 4);
-
-	// button
-	calcButton = new QPushButton("对答案");
-	answerButton = new QPushButton("结果显示");
-	recalcButton = new QPushButton("重新出题");
-	exitButton = new QPushButton("退出");
-
-	rightLayout->addWidget(calcButton, 4, 0, 1, 1);
-	rightLayout->addWidget(answerButton, 4, 1, 1, 1);
-	rightLayout->addWidget(recalcButton, 4, 2, 1, 1);
-	rightLayout->addWidget(exitButton, 4, 3, 1, 1);
-
-	connect(calcButton, SIGNAL(clicked()), this, SLOT(checkAnswer()));
-	connect(answerButton, SIGNAL(clicked()), this, SLOT(showAnswer()));
-	connect(recalcButton, SIGNAL(clicked()), this, SLOT(initNew()));
-	connect(exitButton, SIGNAL(clicked()), this, SLOT(close()));
-	rightGroupBox->setLayout(rightLayout);
-}
-
 MainWindow::~MainWindow()
 {
 	delete arthmetic;
@@ -238,12 +269,39 @@ MainWindow::~MainWindow()
 void MainWindow::initNew()
 {
 	std::cout<< "SLOT_LOG: 生成新的题目" << std::endl;
-	arthmetic->reGenerate();
-	for (int i = 0; i < 10; i++) {
-		// TODO: 在此处将出的题转换格式显示在屏幕上
-		QString a = arthmetic->getQuestion(i);
-		questionLabel[i]->setText(a);
-	}
+	int size = arthmetic->getQuestionNum();
+	arthmetic->generate();
+	// questionLabel.resize(size);
+	// calculateLineEdit.resize(size);
+	// numberLabel.resize(size);
+	// char number[10];
+	// int l = size / 2;
+	// for (int i = 0; i < size; i++) {
+	// 	calculateLineEdit[i] = (new QLineEdit);
+	// 	questionLabel[i] = (new QLabel);
+	// 	sprintf(number, "（%d）", i+1);
+	// 	numberLabel[i] = (new QLabel(number));
+	// 	// TODO: 在此处将出的题转换格式显示在屏幕上
+	// 	QString a = arthmetic->getQuestion(i);
+	// 	questionLabel[i]->setText(a);
+	// 	// calculateLineEdit[i]->setMaxLength(8);
+	// 	calculateLayout->addWidget(
+	// 		numberLabel[i],
+	// 		i % l,
+	// 		(i / l == 0) ? 0 : 3
+	// 	);
+	// 	calculateLayout->addWidget(
+	// 		questionLabel[i],
+	// 		i % l,
+	// 		(i / l == 0) ? 1 : 4
+	// 	);
+	// 	calculateLayout->addWidget(
+	// 		calculateLineEdit[i],
+	// 		i % l,
+	// 		(i / l) ? 2 : 5
+	// 	);
+	//
+	// }
 }
 
 void MainWindow::openFile()
@@ -294,7 +352,7 @@ void MainWindow::aboutQt()
 void MainWindow::settingChanged()
 {
 	std::cout<< "SLOT_LOG: 设置被修改" << std::endl;
-	unsigned char oldLevel = arthmetic->getDifficulty();
+	unsigned char oldLevel = arthmetic->getSet();
 	unsigned char newLevel = 0x00;
 
 	if (checkBoxs[PLUS]->isChecked()) {
@@ -316,16 +374,22 @@ void MainWindow::settingChanged()
 		newLevel |= ARTHMETIC_NOPAR;
 	}
 	printf("Change state from 0X%2X to 0X%2X\n", oldLevel, newLevel);
-	arthmetic->setDifficulty(newLevel);
+	arthmetic->setSet(newLevel);
 }
 
-/*
- * 年级被修改，当修改年级后触发此函数
- * 需要手动判断用户修改到了哪个年级
- */
-void MainWindow::gradeChanged()
+void MainWindow::diffiChanged()
 {
-	std::cout<< "SLOT_LOG: 年级被修改" << std::endl;
+	std::cout<< "SLOT_LOG: 难度被修改" << std::endl;
+	int max, min;
+	bool hp, hn;
+	// int qnum;
+	// qnum = numSpinBox->value();
+	max = maxNum->value();
+	min = minNum->value();
+	hp = hasFloat->isChecked();
+	hn = hasNegative->isChecked();
+	// arthmetic->setQuestionNum(qnum);
+	arthmetic->setDifficulty(max, min, hn, hp);
 }
 
 void MainWindow::checkAnswer()

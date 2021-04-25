@@ -37,13 +37,21 @@ public:
         ~Arthmetic();
 
         QString getQuestion(int i);
-        void reGenerate();
-        void firstGenerate(int length);
-        unsigned char getDifficulty();
-        void setDifficulty(unsigned char);
+        void generate();
+        unsigned char getSet();
+        void setSet(unsigned char);
+	int getQuestionNum();
+	void setQuestionNum(int);
+	void setSet();
+	void setDifficulty(int max, int min, bool n, bool p);
 
 private:
-        unsigned char difficulty;
+	int questionNum;	// 题目数量
+	int maxNum;		// 随机数最大值
+	int minNum;		// 最小值
+	bool hasNegative;	// 结果是否有正负
+	bool hasPoint;		// 结果是否有小数
+        unsigned char set;	// 当前设置（加减乘除、混合）
         std::vector<QString> questionList;
 
         QString generateBySet(unsigned char set);
