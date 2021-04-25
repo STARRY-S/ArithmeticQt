@@ -23,9 +23,9 @@
  * MainWindow -- 主窗口类
  * [x] 主窗体左边为答题区域，右边为设置、记录显示、一些按钮
  * [x] 状态栏中添加打开文件、导出至文件的功能
- * [] 一些重要操作(清空作答区域, 清空全部) 需要加一个警告窗
- * [] 创建帮助弹窗，显示一些使用方法
- * [] 创建关于弹窗，显示软件版本
+ * [x] 一些重要操作(清空作答区域, 清空全部) 需要加一个警告窗
+ * [x] 创建帮助弹窗，显示一些使用方法
+ * [x] 创建关于弹窗，显示软件版本
  */
 
 static const int DEFAULT_QUESTION_NUM = 20;
@@ -60,18 +60,17 @@ private:
 	QWidget *startupPage;
 	QGridLayout *mainLayout;
 	QGroupBox *rightGroupBox;
-	// QGroupBox *leftGroupBox;
 	QScrollArea *leftScrollArea;
 	// QScrollArea *rightScrollArea;
 
 	// left page
 	// 题目数量可变
-	std::vector<QLabel*> questionLabel;
-	std::vector<QLineEdit*> calculateLineEdit;
-	std::vector<QLabel*> numberLabel;
-
+	std::vector<QLabel*> questionLabel;	// 题目
+	std::vector<QLineEdit*> calculateLineEdit; // 答题区域
+	std::vector<QLabel*> numberLabel;	// 标号
 	QGridLayout *calculateLayout;
 	QGroupBox *leftGroupBox;
+
 	// right page
 	QCheckBox *checkBoxs[6];
 	QSpinBox *numSpinBox;
@@ -100,7 +99,7 @@ private:
 	QAction *clearLogAct;
 	QAction *clearAllAct;
 	QAction *aboutAct;
-	QAction *aboutQtAct;
+	QAction *helpAct;
 
 	void createDefaultPage();
 	void createLeftPage();
@@ -121,10 +120,10 @@ private slots:
 	void clearAll();
 
 	void about();
-	void aboutQt();
+	void help();
 
 	void settingChanged();	// 设置被修改
-	void diffiChanged();	// 年级修改
+	void diffChanged();	// 年级修改
 	void checkAnswer();	// 对答案
 	void showAnswer();	// 结果显示
 

@@ -30,7 +30,7 @@ QString Arthmetic::getQuestion(int i)
 	return a;
 }
 
-/* 按照年级生成运算题 */
+/* Deprecated! 按照年级生成运算题 */
 QString Arthmetic::generateByGrade(int grade)
 {
 	unsigned char label = 0x00;
