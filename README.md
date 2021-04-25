@@ -5,4 +5,14 @@
 尚未完工。
 
 # Usage
-...
+
+首先确保安装Qt相关组件和CMake。
+
+```
+$ git clone https://github.com/se-hwk-group/ArthemeticQt.git
+$ cd ArthmeticQt
+$ mkdir build && cd build
+$ cmake .. && make -j8
+$ ./Arthmetic
+
+```
