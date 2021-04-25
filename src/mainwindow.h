@@ -69,7 +69,6 @@ private:
 	std::vector<QLineEdit*> calculateLineEdit; // 答题区域
 	std::vector<QLabel*> numberLabel;	// 标号
 	QGridLayout *calculateLayout;
-	QGroupBox *leftGroupBox;
 
 	// right page
 	QCheckBox *checkBoxs[6];
@@ -106,6 +105,7 @@ private:
 	void createRightPage();
     	void createMenus();
 	void createActions();
+	void reGenerate(int oldsize, int size);
 
 	void initSetting();
 

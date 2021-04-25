@@ -1,4 +1,5 @@
 #include "arthmetic.h"
+#include <fstream>
 
 Arthmetic::Arthmetic()
 {
@@ -348,4 +349,26 @@ void Arthmetic::setDifficulty(int max, int min, bool n, bool p)
 	this->minNum = min;
 	this->hasNegative = n;
 	this->hasPoint = p;
+}
+
+void Arthmetic::openFile(std::string name)
+{
+	std::ifstream file;
+	std::vector<std::string> templist;
+	std::string tmp;
+	file.open(name, std::ios::in);
+	while (std::getline(file, tmp)) {
+		std:: cout << "Read Line: " << tmp << std::endl;
+		templist.push_back(tmp);
+	}
+	file.close();
+
+	int size = templist.size();
+	int oldsize = questionNum;
+	questionNum = size;
+	questionList.resize(size);
+	for (int i = 0; i < size; i++) {
+		questionList[i] =  QString::fromUtf8(templist[i].c_str());
+	}
+
 }

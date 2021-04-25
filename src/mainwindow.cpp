@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <fstream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -29,9 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
 	initSetting();
 }
 
-/*
- * 生成题目，初始化设置，初始化年级为3年级
- */
 void MainWindow::initSetting()
 {
 	unsigned char level = arthmetic->getSet();
@@ -91,16 +89,15 @@ void MainWindow::createDefaultPage()
 	mainLayout = new QGridLayout;
 	mainLayout->addWidget(leftScrollArea, 0, 0, 1, 5);
 	mainLayout->addWidget(rightGroupBox, 0, 5, 1, 1);
-	// mainLayout->
 	startupPage->setLayout(mainLayout);
 }
 
 void MainWindow::createLeftPage()
 {
 	// calculation
-	leftGroupBox = new QGroupBox;
 	leftScrollArea = new QScrollArea;
 	calculateLayout = new QGridLayout;
+	QGroupBox *leftGroupBox = new QGroupBox;
 	for (int i = 0; i < 20; i++) {
 		calculateLineEdit.push_back(new QLineEdit);
 		questionLabel.push_back(new QLabel);
@@ -269,21 +266,7 @@ MainWindow::~MainWindow()
 	delete arthmetic;
 }
 
-void MainWindow::initNew()
-{
-	std::cout<< "SLOT_LOG: 生成新的题目" << std::endl;
-	int oldsize = calculateLineEdit.size();
-	int size = arthmetic->getQuestionNum();
-	arthmetic->generate();
-	// 如果题目数量没有改变，仅修改Label即可
-	if (oldsize == size) {
-		for (int i = 0; i < size; i++) {
-			questionLabel[i]->setText(
-				arthmetic->getQuestion(i));
-		}
-		return;
-	}
-
+void MainWindow::reGenerate(int oldsize, int size) {
 	// 如果用户修改了题目数量
 	// 需要重新生成作答区域
 	for (int i = 0; i < oldsize; i++) {
@@ -320,22 +303,53 @@ void MainWindow::initNew()
 			i % l,
 			(i / l == 0) ? 2 : 5
 		);
+	}
+}
 
+void MainWindow::initNew()
+{
+	std::cout<< "SLOT_LOG: 生成新的题目" << std::endl;
+	int oldsize = calculateLineEdit.size();
+	int size = arthmetic->getQuestionNum();
+	arthmetic->generate();
+	// 如果题目数量没有改变，仅修改Label即可
+	if (oldsize == size) {
+		for (int i = 0; i < size; i++) {
+			questionLabel[i]->setText(
+				arthmetic->getQuestion(i));
+		}
+	} else {
+		reGenerate(oldsize, size);
 	}
 }
 
 void MainWindow::openFile()
 {
 	std::cout<< "SLOT_LOG: 打开文件" << std::endl;
-	QString fileName = QFileDialog::getOpenFileName(this,
-    		tr("打开文件"), tr(".txt"));
-	// TODO: 向arthmetic类传入文件地址
-	std::cout << "OpenFile: " << fileName.toStdString() << '\n';
+	QString fileName = QFileDialog::getOpenFileName(this, tr("打开文件"),
+		tr(".txt"));
+	std::cout << "Open file: " << fileName.toStdString() << std::endl;
+
+	arthmetic->openFile(fileName.toStdString());
+	reGenerate(questionLabel.size(), arthmetic->getQuestionNum());
 }
 
 void MainWindow::saveFile()
 {
 	std::cout<< "SLOT_LOG: 保存题目至文件" << std::endl;
+	QString fileName = QFileDialog::getSaveFileName(this, tr("导出至文件"),
+		"四则运算.txt", tr("*.txt"));
+
+	std::ofstream outstream;
+	outstream.open(fileName.toStdString(), std::ios::out | std::ios::trunc);
+	int size = questionLabel.size();
+	for (int i = 0; i < size; i++) {
+		outstream << arthmetic->getQuestion(i).toStdString()
+				<< std::endl;
+	}
+	outstream.close();
+
+	std::cout << "Exported to file:" << fileName.toStdString() << std::endl;
 }
 
 void MainWindow::clearAns()
