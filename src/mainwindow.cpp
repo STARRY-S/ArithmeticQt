@@ -76,8 +76,8 @@ void MainWindow::initSetting()
 	}
 
 	// 暂不支持混合
-	checkBoxs[PARENT]->setCheckable(false);
-	checkBoxs[NOPAR]->setCheckable(false);
+	// checkBoxs[PARENT]->setCheckable(false);
+	// checkBoxs[NOPAR]->setCheckable(false);
 }
 
 void MainWindow::createDefaultPage()
@@ -119,7 +119,6 @@ void MainWindow::createLeftPage()
 			i % 10,
 			(i / 10) ? 2 : 5
 		);
-
 	}
 
 	leftGroupBox->setLayout(calculateLayout);
@@ -165,11 +164,11 @@ void MainWindow::createRightPage()
 	QLabel *maxHint = new QLabel("最大值：");
 	maxNum = new QSpinBox;
 	maxNum->setRange(1, 10000);
-	maxNum->setValue(100);
+	maxNum->setValue(DEFAULT_MAX_NUM);
 	QLabel *minHint = new QLabel("最小值：");
 	minNum = new QSpinBox;
-	minNum->setRange(0, 9999);
-	minNum->setValue(10);
+	minNum->setRange(1, 9999);
+	minNum->setValue(DEFAULT_MIN_NUM);
 	selectDiffLayout->addWidget(maxHint, 1, 0, 1, 1);
 	selectDiffLayout->addWidget(maxNum, 1, 1, 1, 1);
 	selectDiffLayout->addWidget(minHint, 1, 3, 1, 1);
@@ -258,7 +257,6 @@ void MainWindow::createActions()
 	helpAct = new QAction(tr("使用说明"));
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 	connect(helpAct, SIGNAL(triggered()), this, SLOT(help()));
-
 }
 
 MainWindow::~MainWindow()
@@ -308,7 +306,7 @@ void MainWindow::reGenerate(int oldsize, int size) {
 
 void MainWindow::initNew()
 {
-	std::cout<< "SLOT_LOG: 生成新的题目" << std::endl;
+	std::cout<< "SLOT_LOG: 重新出题" << std::endl;
 	int oldsize = calculateLineEdit.size();
 	int size = arthmetic->getQuestionNum();
 	arthmetic->generate();
@@ -321,6 +319,7 @@ void MainWindow::initNew()
 	} else {
 		reGenerate(oldsize, size);
 	}
+	answerShowing = false;
 }
 
 void MainWindow::openFile()
@@ -332,6 +331,7 @@ void MainWindow::openFile()
 
 	arthmetic->openFile(fileName.toStdString());
 	reGenerate(questionLabel.size(), arthmetic->getQuestionNum());
+	numSpinBox->setValue(arthmetic->getQuestionNum());
 }
 
 void MainWindow::saveFile()
@@ -367,7 +367,6 @@ void MainWindow::clearAns()
 			calculateLineEdit[i]->setText("");
 		}
 	}
-
 }
 
 void MainWindow::clearLog()
@@ -395,7 +394,7 @@ void MainWindow::about()
 {
 	std::cout<< "SLOT_LOG: 关于此软件" << std::endl;
 	QMessageBox msgBox;
-	msgBox.setText("四则运算生成器\n版本号: v1.0.0.");
+	msgBox.setText("四则运算生成器\n版本号: v1.0.0");
 	msgBox.exec();
 }
 
@@ -408,7 +407,8 @@ void MainWindow::help()
 	    	    "右侧为设置区域，可以设置难度，运算模式等\n"
 	            "作答记录中保留了学生每次答题的记录和得分情况\n"
 	    	    "默认答对为1分，答错不得分\n"
-	    	    "小数运算时保留小数点后2位");
+		    "混合运算包含加减乘除和小数和负数的运算\n"
+	    	    "小数运算时保留小数点后4位");
         msg.exec();
 }
 
@@ -436,7 +436,7 @@ void MainWindow::settingChanged()
 	if (checkBoxs[NOPAR]->isChecked()) {
 		newLevel |= ARTHMETIC_NOPAR;
 	}
-	printf("Change state from 0X%2X to 0X%2X\n", oldLevel, newLevel);
+	printf("Change state from 0X%X to 0X%X\n", oldLevel, newLevel);
 	arthmetic->setSet(newLevel);
 }
 
@@ -458,9 +458,48 @@ void MainWindow::diffChanged()
 void MainWindow::checkAnswer()
 {
 	std::cout<< "SLOT_LOG: 对答案" << std::endl;
+	int correctNum = 0;	// 正确个数
+	int faultNum = 0;	// 错误个数
+	int insertedNum = 0;	// 回答题目数量
+
+	int size = arthmetic->getQuestionNum();
+	QString tmp;
+	for (int i = 0; i < size; i++) {
+		tmp = calculateLineEdit[i]->text();
+		if (tmp.length()) {
+			++insertedNum;
+			if (tmp == arthmetic->getAnswer(i)) {
+				++correctNum;
+			} else {
+				++faultNum;
+			}
+		}
+	}
+
+	printf("共回答了%d道题，正确%d, 错误%d\n", insertedNum,
+		correctNum, faultNum);
+	QString status = tr("共回答了%1道题，正确数：%2，错误数%3\n")
+				.arg(insertedNum)
+				.arg(correctNum)
+				.arg(faultNum);
+
+	QMessageBox msgBox;
+	msgBox.setText(status);
+	msgBox.exec();
 }
 
 void MainWindow::showAnswer()
 {
 	std::cout<< "SLOT_LOG: 显示答案" << std::endl;
+	answerShowing = !answerShowing;
+	int size = arthmetic->getQuestionNum();
+	QString tmp;
+	for (int i = 0; i < size; i++) {
+		if (answerShowing) {
+			tmp = arthmetic->getQuestion(i) + " = " + arthmetic->getAnswer(i);
+		} else {
+			tmp = arthmetic->getQuestion(i);
+		}
+		questionLabel[i]->setText(tmp);
+	}
 }

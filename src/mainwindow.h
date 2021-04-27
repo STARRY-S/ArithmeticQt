@@ -55,6 +55,7 @@ private:
 
 	Arthmetic *arthmetic;
 	int currentGrade;	// 当前选中的年级
+	bool answerShowing = false;
 
 	// Main page
 	QWidget *startupPage;

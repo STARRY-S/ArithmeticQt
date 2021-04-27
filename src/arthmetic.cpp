@@ -1,9 +1,9 @@
 #include "arthmetic.h"
 #include <fstream>
+#include <stack>
 
 Arthmetic::Arthmetic()
 {
-	// Arthmetic(10, 1);
 	questionNum = 0;
 	maxNum = minNum = 0;
 	hasNegative = hasPoint = false;
@@ -31,59 +31,75 @@ QString Arthmetic::getQuestion(int i)
 	return a;
 }
 
-/* Deprecated! 按照年级生成运算题 */
-QString Arthmetic::generateByGrade(int grade)
+QString Arthmetic::getAnswer(int i)
 {
-	unsigned char label = 0x00;
-
-	switch (grade) {
-	case 1:
-	{
-		label = ARTHMETIC_PLUS | ARTHMETIC_MINUS;
-		break;
-	}
-	case 2:
-	{
-		label = ARTHMETIC_TIMES | ARTHMETIC_DIVID;
-		break;
-	}
-	case 3:
-	case 4:
-	{
-		label = ARTHMETIC_NOPAR;
-		break;
-	}
-	case 5:
-	case 6:
-	{
-		label = ARTHMETIC_PAREN;
-		break;
-	}
-	default:
-		label = ARTHMETIC_PAREN;
-	}
-
-	return generateBySet(label);
+	return answerList[i];
 }
 
+/* Deprecated! 按照年级生成运算题 */
+// QString Arthmetic::generateByGrade(int grade)
+// {
+// 	unsigned char label = 0x00;
+//
+// 	switch (grade) {
+// 	case 1:
+// 	{
+// 		label = ARTHMETIC_PLUS | ARTHMETIC_MINUS;
+// 		break;
+// 	}
+// 	case 2:
+// 	{
+// 		label = ARTHMETIC_TIMES | ARTHMETIC_DIVID;
+// 		break;
+// 	}
+// 	case 3:
+// 	case 4:
+// 	{
+// 		label = ARTHMETIC_NOPAR;
+// 		break;
+// 	}
+// 	case 5:
+// 	case 6:
+// 	{
+// 		label = ARTHMETIC_PAREN;
+// 		break;
+// 	}
+// 	default:
+// 		label = ARTHMETIC_PAREN;
+// 	}
+//
+// 	return generateBySet(label);
+// }
+//
+// QString Arthmetic::generateBySet(int answer_pos)
+// {
+// 	return generateBySet(set);
+// }
+
 // 指定加减乘除生成运算题
-QString Arthmetic::generateBySet(unsigned char set)
+QString Arthmetic::generateBySet(int answer_pos)
 {
 	// 这个函数没想到更好的实现算法
 	// 只能一个一个按位与
 	// 代码量+++++艹艹艹
-	char temp[128];
+	char temp[128] = { 0 };
 	int a = getRandNum(minNum, maxNum);
 	int b = getRandNum(minNum, maxNum);
+	float answer = 0;
 	if (!set) {
 		// 默认只生成加法
 		set = 0x01;
+	}
+
+	if (set & 0x30) {
+		return generateMulti(answer_pos);
 	}
 
 	switch (set) {
 	case 0x01:	// 只生成加法
 	{
 		sprintf(temp, "%d+%d", a, b);
+		answer = a + b;
 		break;
 	}
 	case 0x02:	// 只生成减法
@@ -93,11 +109,13 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d-%d", a, b);
+		answer = a - b;
 		break;
 	}
 	case 0x04:	// 只生成乘法
 	{
 		sprintf(temp, "%d*%d", a, b);
+		answer = a * b;
 		break;
 	}
 	case 0x08:	// 只生成除法
@@ -107,6 +125,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d/%d", a, b);
+		answer = (float) a / b;
 		break;
 	}
 
@@ -119,6 +138,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '-' : '+', b);
+		answer = (o) ? a-b : a+b;
 		break;
 	}
 	case 0b1100:	// 乘除
@@ -131,6 +151,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '/' : '*', b);
+		answer = (o) ? (float) a/b : (float) a*b;
 		break;
 	}
 	case 0b0101:	// 加乘
@@ -138,6 +159,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 		int o = getRandNum(1);
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '+' : '*', b);
+		answer = (o) ? a+b : (float) a*b;
 		break;
 	}
 	case 0b0110:	// 减乘
@@ -149,6 +171,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '-' : '*', b);
+		answer = (o) ? a-b : (float) a*b;
 		break;
 	}
 	case 0b0111:	// 加减乘
@@ -167,6 +190,13 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
+		if (o == 0) {
+			answer = a + b;
+		} else if (o == 1) {
+			answer = a - b;
+		} else if (o == 2) {
+			answer = (float) a * b;
+		}
 		break;
 	}
 	case 0b1001:	// 加除
@@ -178,6 +208,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '+' : '/', b);
+		answer = (o) ? a+b : (float) a / b;
 		break;
 	}
 	case 0b1010:	// 减除
@@ -193,6 +224,7 @@ QString Arthmetic::generateBySet(unsigned char set)
 		}
 		sprintf(temp, "%d%c%d", a,
 			(o) ? '-' : '/', b);
+		answer = (o) ? a-b : (float) a / b;
 		break;
 	}
 	case 0b1011:	// 以此类推
@@ -216,6 +248,13 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
+		if (o == 0) {
+			answer = a+b;
+		} else if (o == 1) {
+			answer = a-b;
+		} else if (o == 2) {
+			answer = (float) a/b;
+		}
 		break;
 	}
 	case 0b1101:
@@ -235,6 +274,13 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
+		if (o == 0) {
+			answer = a+b;
+		} else if (o == 1) {
+			answer = (float) a * b;
+		} else if (o == 2) {
+			answer = (float) a / b;
+		}
 		break;
 	}
 	case 0b1110:
@@ -257,6 +303,13 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
+		if (o == 0) {
+			answer = a-b;
+		} else if (o == 1) {
+			answer = (float) a * b;
+		} else if (o == 2) {
+			answer = (float) a / b;
+		}
 		break;
 	}
 	case 0b1111:	// 加减乘除,不混合
@@ -282,24 +335,189 @@ QString Arthmetic::generateBySet(unsigned char set)
 			b = getRandNum(minNum, maxNum);
 		}
 		sprintf(temp, "%d%c%d", a, c, b);
+		if (o == 0) {
+			answer = a+b;
+		} else if (o == 1) {
+			answer = a-b;
+		} else if (o == 2) {
+			answer = (float) a * b;
+		} else if (o == 3) {
+			answer = (float) a / b;
+		}
 		break;
 	}
-	case 0x10:	// 混合带括号(包括加减乘除)
-	{
-		;
-	}
-	case 0x20:	// 混合不带括号(包括加减乘除)
-	{
-		;
-	}
-	default:
-		sprintf(temp, "生成错误");
+	default:	// 默认生成加法
+		sprintf(temp, "%d+%d", a, b);
+		answer = a+b;
 		break;
 	}
 
 	QString qs(temp);
-	std::cout << "Generated: " << qs.toStdString() << std::endl;
+	std::cout << "Generated: " << qs.toStdString() << " = ";
+	QString aw(QString::number(answer));
+	std::cout << aw.toStdString() << std::endl;
+
+	answerList[answer_pos] = aw;
 	return qs;
+}
+
+char getOperatorInMulti(int i)
+{
+	switch (i) {
+	case 0:
+		return '+';
+	case 1:
+		return '-';
+	case 2:
+		return '*';
+	case 3:
+		return '/';
+	default:
+		return '+';
+	}
+}
+
+QString Arthmetic::generateMulti(int answer_pos)
+{
+	int operaNum = getRandNum(0, 1);
+	QString tmp;
+	int a, b, c;
+	float answer = 0.0;
+
+	a = getRandNum(minNum, maxNum);
+	b = getRandNum(minNum, maxNum);
+	c = getRandNum(minNum, maxNum);
+
+	int op1 = getRandNum(0, 3);
+	int op2 = getRandNum(0, 3);
+
+	if ((set & 0x10) && operaNum == 0) {
+		tmp = '(' + QString::number(a)
+			+ getOperatorInMulti(op1)
+			+ QString::number(b) + ')'
+			+ getOperatorInMulti(op2)
+			+ QString::number(c);
+		if (op1 == 0) {
+			answer = a + b;
+		} else if (op1 == 1) {
+			answer = a - b;
+ 		} else if (op1 == 2) {
+			answer = a * b;
+		} else if (op1 == 3) {
+			answer = (float) a / b;
+		}
+
+		if (op2 == 0) {
+			answer += c;
+		} else if (op2 == 1) {
+			answer -= c;
+ 		} else if (op2 == 2) {
+			answer *= c;
+		} else if (op2 == 3) {
+			answer /= c;
+		}
+	}else if ((set & 0x10) && operaNum == 1) {
+		tmp = QString::number(a)
+			+ getOperatorInMulti(op1) + '('
+			+ QString::number(b)
+			+ getOperatorInMulti(op2)
+			+ QString::number(c) + ')';
+		;
+		if (op2 == 0) {
+			answer = b + c;
+		} else if (op2 == 1) {
+			answer = b - c;
+ 		} else if (op2 == 2) {
+			answer = b * c;
+		} else if (op2 == 3) {
+			answer = (float) b / c;
+		}
+
+		if (op1 == 0) {
+			answer = a + answer;
+		} else if (op1 == 1) {
+			answer = a - answer;
+ 		} else if (op1 == 2) {
+			answer = a * answer;
+		} else if (op1 == 3) {
+			answer = a / answer;
+		}
+	} else {
+		tmp = QString::number(a)
+			+ getOperatorInMulti(op1)
+			+ QString::number(b)
+			+ getOperatorInMulti(op2)
+			+ QString::number(c);
+		;
+		// 优先级相同
+		if (op1 > 1 && op2 > 1) {
+			if (op1 == 0) {
+				answer = a + b;
+			} else if (op1 == 1) {
+				answer = a - b;
+	 		} else if (op1 == 2) {
+				answer = a * b;
+			} else if (op1 == 3) {
+				answer = (float) a / b;
+			}
+
+			if (op2 == 0) {
+				answer += c;
+			} else if (op2 == 1) {
+				answer -= c;
+	 		} else if (op2 == 2) {
+				answer *= c;
+			} else if (op2 == 3) {
+				answer /= c;
+			}
+		// 优先级不同
+		} else if (op2 > 1) {
+			if (op2 == 0) {
+				answer = b + c;
+			} else if (op2 == 1) {
+				answer = b - c;
+	 		} else if (op2 == 2) {
+				answer = b * c;
+			} else if (op2 == 3) {
+				answer = (float) b / c;
+			}
+
+			if (op1 == 0) {
+				answer = a + answer;
+			} else if (op1 == 1) {
+				answer = a - answer;
+	 		} else if (op1 == 2) {
+				answer = c * answer;
+			} else if (op1 == 3) {
+				answer = c / answer;
+			}
+		} else {
+			if (op1 == 0) {
+				answer = a + b;
+			} else if (op1 == 1) {
+				answer = a - b;
+	 		} else if (op1 == 2) {
+				answer = a * b;
+			} else if (op1 == 3) {
+				answer = (float) a / b;
+			}
+
+			if (op2 == 0) {
+				answer += c;
+			} else if (op2 == 1) {
+				answer -= c;
+	 		} else if (op2 == 2) {
+				answer *= c;
+			} else if (op2 == 3) {
+				answer /= c;
+			}
+		}
+	}
+
+	std::cout << "Generated: " << tmp.toStdString() << std::endl;
+	std::cout << "answer " << answer << std::endl;
+	answerList[answer_pos] = QString::number(answer);
+	return tmp;
 }
 
 void Arthmetic::setSet(unsigned char a)
@@ -312,12 +530,19 @@ unsigned char Arthmetic::getSet()
 	return set;
 }
 
-// 生成题目
+/*
+ * generate -- 生成题目
+ * 生成questionNum数量的题目
+ * 将题目以QString格式保存在questionList中
+ * 将答案以QString格式保存在answerList中
+ */
 void Arthmetic::generate()
 {
 	questionList.resize(questionNum);
+	answerList.resize(questionNum);
 	for (int i = 0; i < questionNum; i++) {
-		questionList[i] = generateBySet(set);
+		questionList[i] = generateBySet(i);
+		// answerList[i] = calculateAnswer(i);
 	}
 }
 
@@ -364,11 +589,10 @@ void Arthmetic::openFile(std::string name)
 	file.close();
 
 	int size = templist.size();
-	int oldsize = questionNum;
+	// int oldsize = questionNum;
 	questionNum = size;
 	questionList.resize(size);
 	for (int i = 0; i < size; i++) {
 		questionList[i] =  QString::fromUtf8(templist[i].c_str());
 	}
-
 }

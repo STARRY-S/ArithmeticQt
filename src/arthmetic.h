@@ -37,6 +37,7 @@ public:
         ~Arthmetic();
 
         QString getQuestion(int i);
+	QString getAnswer(int i);
         void generate();
         unsigned char getSet();
         void setSet(unsigned char);
@@ -53,13 +54,17 @@ private:
 	bool hasNegative;	// 结果是否有正负
 	bool hasPoint;		// 结果是否有小数
         unsigned char set;	// 当前设置（加减乘除、混合）
-        std::vector<QString> questionList;
+	std::vector<QString> questionList;
+        std::vector<QString> answerList;
 
-        QString generateBySet(unsigned char set);
+	// QString generateBySet(unsigned char set);
+        QString generateBySet(int answer_pos);
         QString generateByGrade(int grade);
+	QString generateMulti(int answer_pos);
         int getRandNum(unsigned int a);
         int getRandNum(unsigned int a, unsigned int b);
         void checkLabel();
+	QString calculateAnswer(int i);
 
 };
 
