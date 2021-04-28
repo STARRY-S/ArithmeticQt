@@ -12,7 +12,6 @@
  * TODO:
  * Arthmetic -- 四则运算类
  * [x] 生成指定数量的四则运算题目
- * [] ~~根据不同难度（年级）生成不同类型的题目~~
  * [x] 选择生成题是否包含负数、小数
  * [x] 设定随机数最大值
  * [x] 生成的题目存储至一个列表中
@@ -43,9 +42,8 @@ public:
         void setSet(unsigned char);
 	int getQuestionNum();
 	void setQuestionNum(int);
-	void setSet();
 	void setDifficulty(int max, int min, bool n, bool p);
-	void openFile(std::string name);
+	int openFile(std::string name);
 
 private:
 	int questionNum;	// 题目数量
@@ -57,15 +55,13 @@ private:
 	std::vector<QString> questionList;
         std::vector<QString> answerList;
 
-	// QString generateBySet(unsigned char set);
         QString generateBySet(int answer_pos);
-        QString generateByGrade(int grade);
 	QString generateMulti(int answer_pos);
         int getRandNum(unsigned int a);
         int getRandNum(unsigned int a, unsigned int b);
         void checkLabel();
 	QString calculateAnswer(int i);
-
+	bool checkLineValid(std::string str);
 };
 
 #endif

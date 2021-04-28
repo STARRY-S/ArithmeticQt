@@ -330,7 +330,13 @@ void MainWindow::openFile()
 		tr(".txt"));
 	std::cout << "LOG: Open file: " << fileName.toStdString() << std::endl;
 
-	arthmetic->openFile(fileName.toStdString());
+	int status = arthmetic->openFile(fileName.toStdString());
+	if (status == -1) {
+		QMessageBox msg;
+		msg.setText("文件打开失败:\n请确保您打开的文件是本程序生成的文件\n");
+		msg.exec();
+		return;
+	}
 	reGenerate(questionLabel.size(), arthmetic->getQuestionNum());
 	numSpinBox->setValue(arthmetic->getQuestionNum());
 }
@@ -345,7 +351,8 @@ void MainWindow::saveFile()
 	outstream.open(fileName.toStdString(), std::ios::out | std::ios::trunc);
 	int size = questionLabel.size();
 	for (int i = 0; i < size; i++) {
-		outstream << arthmetic->getQuestion(i).toStdString()
+		outstream << arthmetic->getQuestion(i).toStdString() + " = " +
+			     arthmetic->getAnswer(i).toStdString()
 				<< std::endl;
 	}
 	outstream.close();

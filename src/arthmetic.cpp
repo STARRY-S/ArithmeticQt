@@ -1,6 +1,7 @@
 #include "arthmetic.h"
 #include <fstream>
 #include <stack>
+#include <QStringList>
 
 Arthmetic::Arthmetic()
 {
@@ -35,46 +36,6 @@ QString Arthmetic::getAnswer(int i)
 {
 	return answerList[i];
 }
-
-/* Deprecated! 按照年级生成运算题 */
-// QString Arthmetic::generateByGrade(int grade)
-// {
-// 	unsigned char label = 0x00;
-//
-// 	switch (grade) {
-// 	case 1:
-// 	{
-// 		label = ARTHMETIC_PLUS | ARTHMETIC_MINUS;
-// 		break;
-// 	}
-// 	case 2:
-// 	{
-// 		label = ARTHMETIC_TIMES | ARTHMETIC_DIVID;
-// 		break;
-// 	}
-// 	case 3:
-// 	case 4:
-// 	{
-// 		label = ARTHMETIC_NOPAR;
-// 		break;
-// 	}
-// 	case 5:
-// 	case 6:
-// 	{
-// 		label = ARTHMETIC_PAREN;
-// 		break;
-// 	}
-// 	default:
-// 		label = ARTHMETIC_PAREN;
-// 	}
-//
-// 	return generateBySet(label);
-// }
-//
-// QString Arthmetic::generateBySet(int answer_pos)
-// {
-// 	return generateBySet(set);
-// }
 
 // 指定加减乘除生成运算题
 QString Arthmetic::generateBySet(int answer_pos)
@@ -128,7 +89,6 @@ QString Arthmetic::generateBySet(int answer_pos)
 		answer = (float) a / b;
 		break;
 	}
-
 	case 0x03:	// 加减
 	{
 		int o = getRandNum(1);
@@ -575,23 +535,59 @@ void Arthmetic::setDifficulty(int max, int min, bool n, bool p)
 	this->hasPoint = p;
 }
 
-void Arthmetic::openFile(std::string name)
+// 通过比较字符串中是否有运算符来判断打开的文件是否合法
+bool Arthmetic::checkLineValid(std::string str)
+{
+	QString tmp = QString::fromUtf8(str.c_str());
+	if (!tmp.contains(" = ")) {
+		return false;
+	}
+
+	// a.replace("*", " × ");
+	// a.replace("/", " ÷ ");
+	// a.replace("+", " + ");
+	// a.replace("-", " − ");
+
+	if (tmp.contains("×") || tmp.contains("÷") || tmp.contains("+")
+		|| tmp.contains("−")) {
+		return true;
+	} else {
+		return false;
+	}
+	return true;
+}
+
+// 导入文件中的题目和答案
+int Arthmetic::openFile(std::string name)
 {
 	std::ifstream file;
 	std::vector<std::string> templist;
 	std::string tmp;
 	file.open(name, std::ios::in);
-	while (std::getline(file, tmp)) {
-		std:: cout << "Read Line: " << tmp << std::endl;
+	bool valid = true;
+	while (valid && std::getline(file, tmp)) {
+		std::cout << "Read Line: " << tmp << std::endl;
 		templist.push_back(tmp);
+		if (!checkLineValid(tmp)) {
+			valid = false;
+		}
 	}
 	file.close();
 
+	if (!valid) {
+		std::cerr << "Error: read file error." << std::endl;
+		return -1;
+	}
+
 	int size = templist.size();
-	// int oldsize = questionNum;
 	questionNum = size;
 	questionList.resize(size);
+	QStringList listTmp;
 	for (int i = 0; i < size; i++) {
-		questionList[i] =  QString::fromUtf8(templist[i].c_str());
+		listTmp = QString::fromUtf8(templist[i].c_str()).split(" = ");
+		questionList[i] =  listTmp[0];
+		answerList[i] = listTmp[1];
 	}
+
+	return 0;
 }
