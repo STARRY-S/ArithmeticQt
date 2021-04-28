@@ -75,10 +75,6 @@ void MainWindow::initSetting()
 	} else {
 		checkBoxs[NOPAR]->setChecked(false);
 	}
-
-	// 暂不支持混合
-	// checkBoxs[PARENT]->setCheckable(false);
-	// checkBoxs[NOPAR]->setCheckable(false);
 }
 
 void MainWindow::createDefaultPage()
@@ -307,7 +303,7 @@ void MainWindow::reGenerate(int oldsize, int size) {
 
 void MainWindow::initNew()
 {
-	std::cout<< "SLOT_LOG: 重新出题" << std::endl;
+	std::cout<< "SLOT_LOG: Generate New" << std::endl;
 	int oldsize = calculateLineEdit.size();
 	int size = arthmetic->getQuestionNum();
 	arthmetic->generate();
@@ -329,7 +325,7 @@ void MainWindow::initNew()
 
 void MainWindow::openFile()
 {
-	std::cout<< "SLOT_LOG: 打开文件" << std::endl;
+	std::cout<< "SLOT_LOG: Open File" << std::endl;
 	QString fileName = QFileDialog::getOpenFileName(this, tr("打开文件"),
 		tr(".txt"));
 	std::cout << "LOG: Open file: " << fileName.toStdString() << std::endl;
@@ -341,7 +337,7 @@ void MainWindow::openFile()
 
 void MainWindow::saveFile()
 {
-	std::cout<< "SLOT_LOG: 保存题目至文件" << std::endl;
+	std::cout<< "SLOT_LOG: Export to file" << std::endl;
 	QString fileName = QFileDialog::getSaveFileName(this, tr("导出至文件"),
 		"四则运算.txt", tr("*.txt"));
 
@@ -359,7 +355,7 @@ void MainWindow::saveFile()
 
 void MainWindow::clearAns()
 {
-	std::cout<< "SLOT_LOG: 清空答案" << std::endl;
+	std::cout<< "SLOT_LOG: Clear Edit Line" << std::endl;
 	QMessageBox msgBox;
 	msgBox.setText("清空答题区域:");
 	msgBox.setInformativeText("确定要清空答题区域么?\n此操作不可逆!");
@@ -376,7 +372,7 @@ void MainWindow::clearAns()
 
 void MainWindow::clearLog()
 {
-	std::cout<< "SLOT_LOG: 清空答题记录" << std::endl;
+	std::cout<< "SLOT_LOG: Clear Answer Status" << std::endl;
 	QMessageBox msgBox;
 	msgBox.setText("清空作答结果:");
 	msgBox.setInformativeText("确定要清空答题记录么?\n此操作不可逆!");
@@ -390,14 +386,14 @@ void MainWindow::clearLog()
 
 void MainWindow::clearAll()
 {
-	std::cout<< "SLOT_LOG: 清除全部" << std::endl;
+	std::cout<< "SLOT_LOG: Clear All" << std::endl;
 	clearAns();
 	clearLog();
 }
 
 void MainWindow::about()
 {
-	std::cout<< "SLOT_LOG: 关于此软件" << std::endl;
+	std::cout<< "SLOT_LOG: About" << std::endl;
 	QMessageBox msgBox;
 	msgBox.setText("四则运算生成器\n版本号: v1.0.0");
 	msgBox.exec();
@@ -405,7 +401,7 @@ void MainWindow::about()
 
 void MainWindow::help()
 {
-	std::cout<< "SLOT_LOG: 帮助" << std::endl;
+	std::cout<< "SLOT_LOG: Help" << std::endl;
 	QMessageBox msg;
 	msg.setText("使用说明：\n"
 		    "左侧为答题区域，将运算结果填写在题目后方文本框中\n"
@@ -418,7 +414,7 @@ void MainWindow::help()
 
 void MainWindow::settingChanged()
 {
-	std::cout<< "SLOT_LOG: 设置被修改" << std::endl;
+	std::cout<< "SLOT_LOG: Setting Changed" << std::endl;
 	unsigned char oldLevel = arthmetic->getSet();
 	unsigned char newLevel = 0x00;
 
@@ -446,7 +442,7 @@ void MainWindow::settingChanged()
 
 void MainWindow::diffChanged()
 {
-	std::cout<< "SLOT_LOG: 难度被修改" << std::endl;
+	std::cout<< "SLOT_LOG: Difficulty Changed" << std::endl;
 	int max, min;
 	bool hp, hn;
 	int qnum;
@@ -461,7 +457,7 @@ void MainWindow::diffChanged()
 
 void MainWindow::checkAnswer()
 {
-	std::cout<< "SLOT_LOG: 对答案" << std::endl;
+	std::cout<< "SLOT_LOG: Check Answer" << std::endl;
 	int correctNum = 0;	// 正确个数
 	int faultNum = 0;	// 错误个数
 	int insertedNum = 0;	// 回答题目数量
@@ -488,8 +484,6 @@ void MainWindow::checkAnswer()
 		}
 	}
 
-	printf("LOG: 共回答了%d道题，正确%d, 错误%d\n", insertedNum,
-		correctNum, faultNum);
 	answerTextEdit->setText(log);
 
 	QString msgText = tr("作答结果:\n"
@@ -505,7 +499,7 @@ void MainWindow::checkAnswer()
 
 void MainWindow::showAnswer()
 {
-	std::cout<< "SLOT_LOG: 显示答案" << std::endl;
+	std::cout<< "SLOT_LOG: Show Answer" << std::endl;
 	answerShowing = !answerShowing;
 	int size = arthmetic->getQuestionNum();
 	QString tmp;
