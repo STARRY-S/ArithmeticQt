@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stack>
 #include <QStringList>
+#include <QDebug>
 
 Arthmetic::Arthmetic()
 {
@@ -81,7 +82,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 	}
 	case 0x08:	// 只生成除法
 	{
-		while (!hasPoint && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && a % b != 0) || a == b) {	// 只要求整除
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -104,7 +105,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 	case 0b1100:	// 乘除
 	{
 		int o = getRandNum(1);
-		while (!hasPoint && o == 0 && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && o == 0 && a % b != 0) || a == b) {
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -161,7 +162,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 	case 0b1001:	// 加除
 	{
 		int o = getRandNum(1);
-		while (!hasPoint && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && a % b != 0) || a == b) {	// 只要求整除
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -177,7 +178,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
-		while (!hasPoint && o == 1 && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && o == 1 && a % b != 0) || a == b) {
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -202,7 +203,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
-		while (!hasPoint && o == 2 && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && o == 2 && a % b != 0) || a == b) {
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -228,7 +229,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 			c = '/';
 		}
 
-		while (!hasPoint && o == 2 && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && o == 2 && a % b != 0) || a == b) {
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -257,7 +258,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
-		while (!hasPoint && o == 2 && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && o == 2 && a % b != 0) || a == b) {
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -289,7 +290,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
-		while (!hasPoint && o == 3 && a % b != 0) {	// 只要求整除
+		while ((!hasPoint && o == 3 && a % b != 0) || a == b) {
 			a = getRandNum(minNum, maxNum);
 			b = getRandNum(minNum, maxNum);
 		}
@@ -313,8 +314,7 @@ QString Arthmetic::generateBySet(int answer_pos)
 
 	QString qs(temp);
 	QString aw(QString::number(answer));
-	// std::cout << "Generated: " << qs.toStdString() << " = ";
-	// std::cout << aw.toStdString() << std::endl;
+	qDebug() << "Generated: " << qs << " = " << aw;
 
 	answerList[answer_pos] = aw;
 	return qs;
@@ -473,8 +473,7 @@ QString Arthmetic::generateMulti(int answer_pos)
 		}
 	}
 
-	// std::cout << "Generated: " << tmp.toStdString() << std::endl;
-	// std::cout << "answer " << answer << std::endl;
+	qDebug() << "Generated: " << tmp << " = " << answer;
 	answerList[answer_pos] = QString::number(answer);
 	return tmp;
 }
@@ -542,11 +541,6 @@ bool Arthmetic::checkLineValid(std::string str)
 	if (!tmp.contains(" = ")) {
 		return false;
 	}
-
-	// a.replace("*", " × ");
-	// a.replace("/", " ÷ ");
-	// a.replace("+", " + ");
-	// a.replace("-", " − ");
 
 	if (tmp.contains("×") || tmp.contains("÷") || tmp.contains("+")
 		|| tmp.contains("−")) {
