@@ -408,7 +408,7 @@ void MainWindow::help()
 	    	    "右侧为设置区域，可以设置难度，运算模式等\n"
 	            "对答案后会在作答结果中显示每道题的作答情况\n"
 		    "混合运算包含加减乘除和小数和负数的运算\n"
-	    	    "小数运算时需要保留小数点后4位");
+	    	    "小数运算时需要保留小数点后2位");
         msg.exec();
 }
 
@@ -471,7 +471,7 @@ void MainWindow::checkAnswer()
 		b = arthmetic->getAnswer(i).toDouble();
 		if (calculateLineEdit[i]->text().length()) {
 			++insertedNum;
-			if (abs(a - b) < 0.0001) {
+			if (abs(a - b) < 0.005) {
 				tmp = "正确";
 				++correctNum;
 			} else {
