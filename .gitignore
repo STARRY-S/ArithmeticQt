@@ -4,7 +4,8 @@
 build/*
 build/
 *.user
-
+out/
+.vs/
 
 *~
 *.autosave
