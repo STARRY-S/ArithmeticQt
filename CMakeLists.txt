@@ -19,8 +19,8 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
         src/mainwindow.h
-        src/arthmetic.h
-        src/arthmetic.cpp
+        src/arithmetic.h
+        src/arithmetic.cpp
 )
 
 add_executable(
