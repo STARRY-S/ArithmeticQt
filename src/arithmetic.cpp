@@ -2,7 +2,7 @@
 #include <fstream>
 #include <stack>
 #include <QStringList>
-#include <QDebug>
+// #include <QDebug>
 
 Arithmetic::Arithmetic()
 {
@@ -314,7 +314,7 @@ QString Arithmetic::generateBySet(int answer_pos)
 
 	QString qs(temp);
 	QString aw(QString::number(answer));
-	qDebug() << "Generated: " << qs << " = " << aw;
+	// qDebug() << "Generated: " << qs << " = " << aw;
 
 	answerList[answer_pos] = aw;
 	return qs;
@@ -473,7 +473,7 @@ QString Arithmetic::generateMulti(int answer_pos)
 		}
 	}
 
-	qDebug() << "Generated: " << tmp << " = " << answer;
+	// qDebug() << "Generated: " << tmp << " = " << answer;
 	answerList[answer_pos] = QString::number(answer);
 	return tmp;
 }
