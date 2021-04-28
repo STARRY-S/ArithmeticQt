@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <fstream>
+#include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -117,7 +118,7 @@ void MainWindow::createLeftPage()
 		calculateLayout->addWidget(
 			calculateLineEdit[i],
 			i % 10,
-			(i / 10) ? 2 : 5
+			(i / 10 == 0) ? 2 : 5
 		);
 	}
 
@@ -186,7 +187,7 @@ void MainWindow::createRightPage()
 	selectDiffBox->setLayout(selectDiffLayout);
 	rightLayout->addWidget(selectDiffBox, 1, 0, 1, 4);
 
-	QLabel *answerLabel = new QLabel("作答记录");
+	QLabel *answerLabel = new QLabel("作答结果");
 	rightLayout->addWidget(answerLabel, 2, 0, 1, 1);
 
 	answerTextEdit = new QTextEdit;
@@ -315,11 +316,15 @@ void MainWindow::initNew()
 		for (int i = 0; i < size; i++) {
 			questionLabel[i]->setText(
 				arthmetic->getQuestion(i));
+			calculateLineEdit[i]->setText("");
 		}
 	} else {
 		reGenerate(oldsize, size);
 	}
 	answerShowing = false;
+
+	// 重新出题后需要清空作答区域和作答记录
+	answerTextEdit->setText("");
 }
 
 void MainWindow::openFile()
@@ -327,7 +332,7 @@ void MainWindow::openFile()
 	std::cout<< "SLOT_LOG: 打开文件" << std::endl;
 	QString fileName = QFileDialog::getOpenFileName(this, tr("打开文件"),
 		tr(".txt"));
-	std::cout << "Open file: " << fileName.toStdString() << std::endl;
+	std::cout << "LOG: Open file: " << fileName.toStdString() << std::endl;
 
 	arthmetic->openFile(fileName.toStdString());
 	reGenerate(questionLabel.size(), arthmetic->getQuestionNum());
@@ -349,7 +354,7 @@ void MainWindow::saveFile()
 	}
 	outstream.close();
 
-	std::cout << "Exported to file:" << fileName.toStdString() << std::endl;
+	std::cout << "LOG: Exported to file:" << fileName.toStdString() << std::endl;
 }
 
 void MainWindow::clearAns()
@@ -359,7 +364,7 @@ void MainWindow::clearAns()
 	msgBox.setText("清空答题区域:");
 	msgBox.setInformativeText("确定要清空答题区域么?\n此操作不可逆!");
 	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-	msgBox.setDefaultButton(QMessageBox::Cancel);
+	// msgBox.setDefaultButton(QMessageBox::Cancel);
 	int ret = msgBox.exec();
 	if (ret == QMessageBox::Ok) {
 		int size = calculateLineEdit.size();
@@ -373,10 +378,10 @@ void MainWindow::clearLog()
 {
 	std::cout<< "SLOT_LOG: 清空答题记录" << std::endl;
 	QMessageBox msgBox;
-	msgBox.setText("清空作答记录:");
+	msgBox.setText("清空作答结果:");
 	msgBox.setInformativeText("确定要清空答题记录么?\n此操作不可逆!");
 	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-	msgBox.setDefaultButton(QMessageBox::Cancel);
+	// msgBox.setDefaultButton(QMessageBox::Cancel);
 	int ret = msgBox.exec();
 	if (ret == QMessageBox::Ok) {
 		answerTextEdit->setText("");
@@ -405,10 +410,9 @@ void MainWindow::help()
 	msg.setText("使用说明：\n"
 		    "左侧为答题区域，将运算结果填写在题目后方文本框中\n"
 	    	    "右侧为设置区域，可以设置难度，运算模式等\n"
-	            "作答记录中保留了学生每次答题的记录和得分情况\n"
-	    	    "默认答对为1分，答错不得分\n"
+	            "对答案后会在作答结果中显示每道题的作答情况\n"
 		    "混合运算包含加减乘除和小数和负数的运算\n"
-	    	    "小数运算时保留小数点后4位");
+	    	    "小数运算时需要保留小数点后4位");
         msg.exec();
 }
 
@@ -436,7 +440,7 @@ void MainWindow::settingChanged()
 	if (checkBoxs[NOPAR]->isChecked()) {
 		newLevel |= ARTHMETIC_NOPAR;
 	}
-	printf("Change state from 0X%X to 0X%X\n", oldLevel, newLevel);
+	printf("LOG: Change state from 0X%02X to 0X%02X\n", oldLevel, newLevel);
 	arthmetic->setSet(newLevel);
 }
 
@@ -464,27 +468,38 @@ void MainWindow::checkAnswer()
 
 	int size = arthmetic->getQuestionNum();
 	QString tmp;
+	double a, b;
+	QString log;
 	for (int i = 0; i < size; i++) {
-		tmp = calculateLineEdit[i]->text();
-		if (tmp.length()) {
+		a = calculateLineEdit[i]->text().toDouble();
+		b = arthmetic->getAnswer(i).toDouble();
+		if (calculateLineEdit[i]->text().length()) {
 			++insertedNum;
-			if (tmp == arthmetic->getAnswer(i)) {
+			if (abs(a - b) < 0.0001) {
+				tmp = "正确";
 				++correctNum;
 			} else {
+				tmp = "错误";
 				++faultNum;
 			}
+			log += tr("第%1题: %2\n").arg(i+1).arg(tmp);
+		} else {
+			log += tr("第%1题: 未作答\n").arg(i+1);
 		}
 	}
 
-	printf("共回答了%d道题，正确%d, 错误%d\n", insertedNum,
+	printf("LOG: 共回答了%d道题，正确%d, 错误%d\n", insertedNum,
 		correctNum, faultNum);
-	QString status = tr("共回答了%1道题，正确数：%2，错误数%3\n")
-				.arg(insertedNum)
-				.arg(correctNum)
-				.arg(faultNum);
+	answerTextEdit->setText(log);
+
+	QString msgText = tr("作答结果:\n"
+			 "回答了%1道题，正确数：%2，错误数%3\n")
+			 .arg(insertedNum)
+			 .arg(correctNum)
+			 .arg(faultNum);
 
 	QMessageBox msgBox;
-	msgBox.setText(status);
+	msgBox.setText(msgText);
 	msgBox.exec();
 }
 

@@ -143,7 +143,6 @@ QString Arthmetic::generateBySet(int answer_pos)
 	}
 	case 0b1100:	// 乘除
 	{
-		printf("乘除\n");
 		int o = getRandNum(1);
 		while (!hasPoint && o == 0 && a % b != 0) {	// 只要求整除
 			a = getRandNum(minNum, maxNum);
@@ -353,9 +352,9 @@ QString Arthmetic::generateBySet(int answer_pos)
 	}
 
 	QString qs(temp);
-	std::cout << "Generated: " << qs.toStdString() << " = ";
 	QString aw(QString::number(answer));
-	std::cout << aw.toStdString() << std::endl;
+	// std::cout << "Generated: " << qs.toStdString() << " = ";
+	// std::cout << aw.toStdString() << std::endl;
 
 	answerList[answer_pos] = aw;
 	return qs;
@@ -514,8 +513,8 @@ QString Arthmetic::generateMulti(int answer_pos)
 		}
 	}
 
-	std::cout << "Generated: " << tmp.toStdString() << std::endl;
-	std::cout << "answer " << answer << std::endl;
+	// std::cout << "Generated: " << tmp.toStdString() << std::endl;
+	// std::cout << "answer " << answer << std::endl;
 	answerList[answer_pos] = QString::number(answer);
 	return tmp;
 }
