@@ -9,7 +9,7 @@
 ## Linux/Unix
 
 ```
-$ git clone https://github.com/se-hwk-group/ArthemeticQt.git
+$ git clone https://github.com/se-hwk-group/ArithemeticQt.git
 $ cd ArithmeticQt
 $ mkdir build && cd build
 $ cmake .. && make -j8
