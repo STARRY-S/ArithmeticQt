@@ -6,21 +6,21 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 	// 默认生成加减乘除
-	arthmetic = new Arthmetic();
+	arithmetic = new Arithmetic();
 	// 初始化预设为加减乘除
-	arthmetic->setSet( ARTHMETIC_PLUS
+	arithmetic->setSet( ARTHMETIC_PLUS
 				| ARTHMETIC_MINUS
 		      		| ARTHMETIC_TIMES
 				| ARTHMETIC_DIVID);
 	// 初始化题目数量为20
-	arthmetic->setQuestionNum(DEFAULT_QUESTION_NUM);
+	arithmetic->setQuestionNum(DEFAULT_QUESTION_NUM);
 	// 初始化难度
-	arthmetic->setDifficulty(DEFAULT_MAX_NUM,
+	arithmetic->setDifficulty(DEFAULT_MAX_NUM,
 				DEFAULT_MIN_NUM,
 				HAS_NEGATIVE,
 				HAS_POINT);
 	// 生成指定数量的题目
-	arthmetic->generate();
+	arithmetic->generate();
 	this->setWindowTitle(tr("四则运算计算器"));
 	this->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::initSetting()
 {
-	unsigned char level = arthmetic->getSet();
+	unsigned char level = arithmetic->getSet();
 	if (level == 0) {
 		checkBoxs[NOPAR]->setChecked(true);
 	} else {
@@ -99,7 +99,7 @@ void MainWindow::createLeftPage()
 		calculateLineEdit.push_back(new QLineEdit);
 		questionLabel.push_back(new QLabel);
 		numberLabel.push_back(new QLabel(tr("（%1）").arg(i+1)));
-		QString a = arthmetic->getQuestion(i);
+		QString a = arithmetic->getQuestion(i);
 		questionLabel[i]->setText(a);
 		calculateLayout->addWidget(
 			numberLabel[i],
@@ -153,7 +153,7 @@ void MainWindow::createRightPage()
 	numSpinBox = new QSpinBox;
 	numSpinBox->setRange(10, 100);
 	numSpinBox->setSingleStep(1);
-	numSpinBox->setValue(arthmetic->getQuestionNum());
+	numSpinBox->setValue(arithmetic->getQuestionNum());
 	selectDiffLayout->addWidget(numberHint, 0, 0, 1, 1);
 	selectDiffLayout->addWidget(numSpinBox, 0, 1, 1, 4);
 	connect(numSpinBox, SIGNAL(valueChanged(int)), this, SLOT(diffChanged()));
@@ -258,7 +258,7 @@ void MainWindow::createActions()
 
 MainWindow::~MainWindow()
 {
-	delete arthmetic;
+	delete arithmetic;
 }
 
 void MainWindow::reGenerate(int oldsize, int size) {
@@ -282,7 +282,7 @@ void MainWindow::reGenerate(int oldsize, int size) {
 		calculateLineEdit[i] = (new QLineEdit);
 		questionLabel[i] = (new QLabel);
 		numberLabel[i] = new QLabel(tr("（%1）").arg(i+1));
-		questionLabel[i]->setText(arthmetic->getQuestion(i));
+		questionLabel[i]->setText(arithmetic->getQuestion(i));
 		calculateLayout->addWidget(
 			numberLabel[i],
 			i % l,
@@ -305,13 +305,13 @@ void MainWindow::initNew()
 {
 	std::cout<< "SLOT_LOG: Generate New" << std::endl;
 	int oldsize = calculateLineEdit.size();
-	int size = arthmetic->getQuestionNum();
-	arthmetic->generate();
+	int size = arithmetic->getQuestionNum();
+	arithmetic->generate();
 	// 如果题目数量没有改变，仅修改Label即可
 	if (oldsize == size) {
 		for (int i = 0; i < size; i++) {
 			questionLabel[i]->setText(
-				arthmetic->getQuestion(i));
+				arithmetic->getQuestion(i));
 			calculateLineEdit[i]->setText("");
 		}
 	} else {
@@ -330,15 +330,15 @@ void MainWindow::openFile()
 		tr(".txt"));
 	std::cout << "LOG: Open file: " << fileName.toStdString() << std::endl;
 
-	int status = arthmetic->openFile(fileName.toStdString());
+	int status = arithmetic->openFile(fileName.toStdString());
 	if (status == -1) {
 		QMessageBox msg;
 		msg.setText("文件打开失败:\n请确保您打开的文件是本程序生成的文件\n");
 		msg.exec();
 		return;
 	}
-	reGenerate(questionLabel.size(), arthmetic->getQuestionNum());
-	numSpinBox->setValue(arthmetic->getQuestionNum());
+	reGenerate(questionLabel.size(), arithmetic->getQuestionNum());
+	numSpinBox->setValue(arithmetic->getQuestionNum());
 }
 
 void MainWindow::saveFile()
@@ -351,8 +351,8 @@ void MainWindow::saveFile()
 	outstream.open(fileName.toStdString(), std::ios::out | std::ios::trunc);
 	int size = questionLabel.size();
 	for (int i = 0; i < size; i++) {
-		outstream << arthmetic->getQuestion(i).toStdString() + " = " +
-			     arthmetic->getAnswer(i).toStdString()
+		outstream << arithmetic->getQuestion(i).toStdString() + " = " +
+			     arithmetic->getAnswer(i).toStdString()
 				<< std::endl;
 	}
 	outstream.close();
@@ -422,7 +422,7 @@ void MainWindow::help()
 void MainWindow::settingChanged()
 {
 	std::cout<< "SLOT_LOG: Setting Changed" << std::endl;
-	unsigned char oldLevel = arthmetic->getSet();
+	unsigned char oldLevel = arithmetic->getSet();
 	unsigned char newLevel = 0x00;
 
 	if (checkBoxs[PLUS]->isChecked()) {
@@ -444,7 +444,7 @@ void MainWindow::settingChanged()
 		newLevel |= ARTHMETIC_NOPAR;
 	}
 	printf("LOG: Change state from 0X%02X to 0X%02X\n", oldLevel, newLevel);
-	arthmetic->setSet(newLevel);
+	arithmetic->setSet(newLevel);
 }
 
 void MainWindow::diffChanged()
@@ -458,8 +458,8 @@ void MainWindow::diffChanged()
 	min = minNum->value();
 	hp = hasFloat->isChecked();
 	hn = hasNegative->isChecked();
-	arthmetic->setQuestionNum(qnum);
-	arthmetic->setDifficulty(max, min, hn, hp);
+	arithmetic->setQuestionNum(qnum);
+	arithmetic->setDifficulty(max, min, hn, hp);
 }
 
 void MainWindow::checkAnswer()
@@ -469,13 +469,13 @@ void MainWindow::checkAnswer()
 	int faultNum = 0;	// 错误个数
 	int insertedNum = 0;	// 回答题目数量
 
-	int size = arthmetic->getQuestionNum();
+	int size = arithmetic->getQuestionNum();
 	QString tmp;
 	double a, b;
 	QString log;
 	for (int i = 0; i < size; i++) {
 		a = calculateLineEdit[i]->text().toDouble();
-		b = arthmetic->getAnswer(i).toDouble();
+		b = arithmetic->getAnswer(i).toDouble();
 		if (calculateLineEdit[i]->text().length()) {
 			++insertedNum;
 			if (abs(a - b) < 0.005) {
@@ -508,13 +508,13 @@ void MainWindow::showAnswer()
 {
 	std::cout<< "SLOT_LOG: Show Answer" << std::endl;
 	answerShowing = !answerShowing;
-	int size = arthmetic->getQuestionNum();
+	int size = arithmetic->getQuestionNum();
 	QString tmp;
 	for (int i = 0; i < size; i++) {
 		if (answerShowing) {
-			tmp = arthmetic->getQuestion(i) + " = " + arthmetic->getAnswer(i);
+			tmp = arithmetic->getQuestion(i) + " = " + arithmetic->getAnswer(i);
 		} else {
-			tmp = arthmetic->getQuestion(i);
+			tmp = arithmetic->getQuestion(i);
 		}
 		questionLabel[i]->setText(tmp);
 	}

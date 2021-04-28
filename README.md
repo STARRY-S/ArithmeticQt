@@ -1,4 +1,4 @@
-# 四则运算生成器 Qt
+# Arithmetic Generator Qt
 
 软件工程作业，四则运算生成器。
 
@@ -10,10 +10,10 @@
 
 ```
 $ git clone https://github.com/se-hwk-group/ArthemeticQt.git
-$ cd ArthmeticQt
+$ cd ArithmeticQt
 $ mkdir build && cd build
 $ cmake .. && make -j8
-$ ./Arthmetic
+$ ./Arithmetic
 ```
 
 ## Windows

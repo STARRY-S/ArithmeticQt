@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Arthmetic LANGUAGES CXX)
+project(Arithmetic LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -24,7 +24,7 @@ set(PROJECT_SOURCES
 )
 
 add_executable(
-    Arthmetic
+    Arithmetic
     ${PROJECT_SOURCES}
 )
 

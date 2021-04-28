@@ -10,7 +10,7 @@
 
 /*
  * TODO:
- * Arthmetic -- 四则运算类
+ * Arithmetic -- 四则运算类
  * [x] 生成指定数量的四则运算题目
  * [x] 选择生成题是否包含负数、小数
  * [x] 设定随机数最大值
@@ -30,10 +30,10 @@ static const unsigned char ARTHMETIC_DIVID = 0x08;
 static const unsigned char ARTHMETIC_PAREN = 0x10;
 static const unsigned char ARTHMETIC_NOPAR = 0x20;
 
-class Arthmetic {
+class Arithmetic {
 public:
-        Arthmetic();
-        ~Arthmetic();
+        Arithmetic();
+        ~Arithmetic();
 
         QString getQuestion(int i);
 	QString getAnswer(int i);

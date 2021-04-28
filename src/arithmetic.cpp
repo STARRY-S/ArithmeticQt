@@ -1,10 +1,10 @@
-#include "arthmetic.h"
+#include "arithmetic.h"
 #include <fstream>
 #include <stack>
 #include <QStringList>
 #include <QDebug>
 
-Arthmetic::Arthmetic()
+Arithmetic::Arithmetic()
 {
 	questionNum = 0;
 	maxNum = minNum = 0;
@@ -12,12 +12,12 @@ Arthmetic::Arthmetic()
 	set = 0x00;
 }
 
-Arthmetic::~Arthmetic()
+Arithmetic::~Arithmetic()
 {
-	std::cout << "Arthmetic Finished, bye!" << std::endl;
+	std::cout << "Arithmetic Finished, bye!" << std::endl;
 }
 
-QString Arthmetic::getQuestion(int i)
+QString Arithmetic::getQuestion(int i)
 {
 	if (i >= (int) questionList.size()) {
 		std::cerr << "Error: out of range." << std::endl;
@@ -33,13 +33,13 @@ QString Arthmetic::getQuestion(int i)
 	return a;
 }
 
-QString Arthmetic::getAnswer(int i)
+QString Arithmetic::getAnswer(int i)
 {
 	return answerList[i];
 }
 
 // 指定加减乘除生成运算题
-QString Arthmetic::generateBySet(int answer_pos)
+QString Arithmetic::generateBySet(int answer_pos)
 {
 	// 这个函数没想到更好的实现算法
 	// 只能一个一个按位与
@@ -336,7 +336,7 @@ char getOperatorInMulti(int i)
 	}
 }
 
-QString Arthmetic::generateMulti(int answer_pos)
+QString Arithmetic::generateMulti(int answer_pos)
 {
 	int operaNum = getRandNum(0, 1);
 	QString tmp;
@@ -478,12 +478,12 @@ QString Arthmetic::generateMulti(int answer_pos)
 	return tmp;
 }
 
-void Arthmetic::setSet(unsigned char a)
+void Arithmetic::setSet(unsigned char a)
 {
 	set = a;
 }
 
-unsigned char Arthmetic::getSet()
+unsigned char Arithmetic::getSet()
 {
 	return set;
 }
@@ -494,7 +494,7 @@ unsigned char Arthmetic::getSet()
  * 将题目以QString格式保存在questionList中
  * 将答案以QString格式保存在answerList中
  */
-void Arthmetic::generate()
+void Arithmetic::generate()
 {
 	questionList.resize(questionNum);
 	answerList.resize(questionNum);
@@ -504,29 +504,29 @@ void Arthmetic::generate()
 	}
 }
 
-int Arthmetic::getRandNum(unsigned int a)
+int Arithmetic::getRandNum(unsigned int a)
 {
 	return getRandNum(0, a);
 }
 
-int Arthmetic::getRandNum(unsigned int a, unsigned int b)
+int Arithmetic::getRandNum(unsigned int a, unsigned int b)
 {
 	return QRandomGenerator::global()->generate() % (b-a+1) + a;
 }
 
-int Arthmetic::getQuestionNum()
+int Arithmetic::getQuestionNum()
 {
 	return questionNum;
 }
 
 // 题目数量
-void Arthmetic::setQuestionNum(int a)
+void Arithmetic::setQuestionNum(int a)
 {
 	questionNum = a;
 }
 
 // 难度设定
-void Arthmetic::setDifficulty(int max, int min, bool n, bool p)
+void Arithmetic::setDifficulty(int max, int min, bool n, bool p)
 {
 	this->maxNum = max;
 	this->minNum = min;
@@ -535,7 +535,7 @@ void Arthmetic::setDifficulty(int max, int min, bool n, bool p)
 }
 
 // 通过比较字符串中是否有运算符来判断打开的文件是否合法
-bool Arthmetic::checkLineValid(std::string str)
+bool Arithmetic::checkLineValid(std::string str)
 {
 	QString tmp = QString::fromUtf8(str.c_str());
 	if (!tmp.contains(" = ")) {
@@ -552,7 +552,7 @@ bool Arthmetic::checkLineValid(std::string str)
 }
 
 // 导入文件中的题目和答案
-int Arthmetic::openFile(std::string name)
+int Arithmetic::openFile(std::string name)
 {
 	std::ifstream file;
 	std::vector<std::string> templist;

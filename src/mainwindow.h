@@ -15,7 +15,7 @@
 #include <QToolBar>
 #include <QtWidgets>
 #include <vector>
-#include "arthmetic.h"
+#include "arithmetic.h"
 
 /*
  * TODO:
@@ -52,7 +52,7 @@ private:
 	const int PARENT = 2;
 	const int NOPAR  = 5;
 
-	Arthmetic *arthmetic;
+	Arithmetic *arithmetic;
 	int currentGrade;	// 当前选中的年级
 	bool answerShowing = false;
 
