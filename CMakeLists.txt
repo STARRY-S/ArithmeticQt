@@ -28,4 +28,4 @@ add_executable(
     ${PROJECT_SOURCES}
 )
 
-target_link_libraries(Arthmetic PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(Arithmetic PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
