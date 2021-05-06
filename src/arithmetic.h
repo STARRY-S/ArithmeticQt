@@ -1,5 +1,5 @@
-#ifndef ARTHMETIC_H
-#define ARTHMETIC_H
+#ifndef ARITHMETIC_H
+#define ARITHMETIC_H
 
 #include <iostream>
 #include <string>
@@ -23,12 +23,12 @@
  * [x] 将生成的题目转换成小学生能看懂的格式，（加减乘除符号转换）
  */
 
-static const unsigned char ARTHMETIC_PLUS  = 0x01;
-static const unsigned char ARTHMETIC_MINUS = 0x02;
-static const unsigned char ARTHMETIC_TIMES = 0x04;
-static const unsigned char ARTHMETIC_DIVID = 0x08;
-static const unsigned char ARTHMETIC_PAREN = 0x10;
-static const unsigned char ARTHMETIC_NOPAR = 0x20;
+static const unsigned char ARITHMETIC_PLUS  = 0x01;
+static const unsigned char ARITHMETIC_MINUS = 0x02;
+static const unsigned char ARITHMETIC_TIMES = 0x04;
+static const unsigned char ARITHMETIC_DIVID = 0x08;
+static const unsigned char ARITHMETIC_PAREN = 0x10;
+static const unsigned char ARITHMETIC_NOPAR = 0x20;
 
 class Arithmetic {
 public:

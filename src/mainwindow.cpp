@@ -8,10 +8,10 @@ MainWindow::MainWindow(QWidget *parent)
 	// 默认生成加减乘除
 	arithmetic = new Arithmetic();
 	// 初始化预设为加减乘除
-	arithmetic->setSet( ARTHMETIC_PLUS
-				| ARTHMETIC_MINUS
-		      		| ARTHMETIC_TIMES
-				| ARTHMETIC_DIVID);
+	arithmetic->setSet( ARITHMETIC_PLUS
+				| ARITHMETIC_MINUS
+		      		| ARITHMETIC_TIMES
+				| ARITHMETIC_DIVID);
 	// 初始化题目数量为20
 	arithmetic->setQuestionNum(DEFAULT_QUESTION_NUM);
 	// 初始化难度
@@ -426,22 +426,22 @@ void MainWindow::settingChanged()
 	unsigned char newLevel = 0x00;
 
 	if (checkBoxs[PLUS]->isChecked()) {
-		newLevel |= ARTHMETIC_PLUS;
+		newLevel |= ARITHMETIC_PLUS;
 	}
 	if (checkBoxs[MINUS]->isChecked()) {
-		newLevel |= ARTHMETIC_MINUS;
+		newLevel |= ARITHMETIC_MINUS;
 	}
 	if (checkBoxs[TIME]->isChecked()) {
-		newLevel |= ARTHMETIC_TIMES;
+		newLevel |= ARITHMETIC_TIMES;
 	}
 	if (checkBoxs[DIVID]->isChecked()) {
-		newLevel |= ARTHMETIC_DIVID;
+		newLevel |= ARITHMETIC_DIVID;
 	}
 	if (checkBoxs[PARENT]->isChecked()) {
-		newLevel |= ARTHMETIC_PAREN;
+		newLevel |= ARITHMETIC_PAREN;
 	}
 	if (checkBoxs[NOPAR]->isChecked()) {
-		newLevel |= ARTHMETIC_NOPAR;
+		newLevel |= ARITHMETIC_NOPAR;
 	}
 	printf("LOG: Change state from 0X%02X to 0X%02X\n", oldLevel, newLevel);
 	arithmetic->setSet(newLevel);
