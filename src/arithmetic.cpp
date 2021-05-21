@@ -41,9 +41,6 @@ QString Arithmetic::getAnswer(int i)
 // 指定加减乘除生成运算题
 QString Arithmetic::generateBySet(int answer_pos)
 {
-        // 这个函数没想到更好的实现算法
-        // 只能一个一个按位与
-        // 代码量+++++艹艹艹
         char temp[128] = { 0 };
         int a = getRandNum(minNum, maxNum);
         int b = getRandNum(minNum, maxNum);

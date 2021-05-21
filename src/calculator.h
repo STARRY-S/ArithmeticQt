@@ -1,8 +1,14 @@
 #ifndef CALCULATOR_H
 #define CALCULATOR_H
 
-class Calculator {
+#include <string>
 
+class Calculator {
+private:
+public:
+        Calculator() = default;
+
+        virtual float calculate(std::string exp);
 };
 
 #endif
