@@ -39,93 +39,93 @@ static const int MIN_HEIGHT = 300;
 
 class MainWindow : public QMainWindow
 {
-    	Q_OBJECT
+            Q_OBJECT
 public:
-	explicit MainWindow(QWidget *parent = nullptr);
-	~MainWindow();
+        explicit MainWindow(QWidget *parent = nullptr);
+        ~MainWindow();
 
 private:
-	const int PLUS   = 0;
-	const int MINUS  = 3;
-	const int TIME   = 1;
-	const int DIVID  = 4;
-	const int PARENT = 2;
-	const int NOPAR  = 5;
+        const int PLUS   = 0;
+        const int MINUS  = 3;
+        const int TIME   = 1;
+        const int DIVID  = 4;
+        const int PARENT = 2;
+        const int NOPAR  = 5;
 
-	Arithmetic *arithmetic;
-	int currentGrade;	// 当前选中的年级
-	bool answerShowing = false;
+        Arithmetic *arithmetic;
+        int currentGrade;        // 当前选中的年级
+        bool answerShowing = false;
 
-	// Main page
-	QWidget *startupPage;
-	QGridLayout *mainLayout;
-	QGroupBox *rightGroupBox;
-	QScrollArea *leftScrollArea;
-	// QScrollArea *rightScrollArea;
+        // Main page
+        QWidget *startupPage;
+        QGridLayout *mainLayout;
+        QGroupBox *rightGroupBox;
+        QScrollArea *leftScrollArea;
+        // QScrollArea *rightScrollArea;
 
-	// left page
-	// 题目数量可变
-	std::vector<QLabel*> questionLabel;	// 题目
-	std::vector<QLineEdit*> calculateLineEdit; // 答题区域
-	std::vector<QLabel*> numberLabel;	// 标号
-	QGridLayout *calculateLayout;
+        // left page
+        // 题目数量可变
+        std::vector<QLabel*> questionLabel;        // 题目
+        std::vector<QLineEdit*> calculateLineEdit; // 答题区域
+        std::vector<QLabel*> numberLabel;        // 标号
+        QGridLayout *calculateLayout;
 
-	// right page
-	QCheckBox *checkBoxs[6];
-	QSpinBox *numSpinBox;
-	QSpinBox *maxNum;		// 生成随机数的最大值
-	QSpinBox *minNum;		// 随机数最小值
-	QCheckBox *hasNegative; 	// 结果是否存在负数运算
-	QCheckBox *hasFloat;		// 结果是否可以有浮点数
-	QTextEdit *answerTextEdit;	// 作答记录
-	// right page buttons
-	QPushButton *calcButton;
-	QPushButton *answerButton;
-	QPushButton *recalcButton;
-	QPushButton *exitButton;
+        // right page
+        QCheckBox *checkBoxs[6];
+        QSpinBox *numSpinBox;
+        QSpinBox *maxNum;                // 生成随机数的最大值
+        QSpinBox *minNum;                // 随机数最小值
+        QCheckBox *hasNegative;         // 结果是否存在负数运算
+        QCheckBox *hasFloat;                // 结果是否可以有浮点数
+        QTextEdit *answerTextEdit;        // 作答记录
+        // right page buttons
+        QPushButton *calcButton;
+        QPushButton *answerButton;
+        QPushButton *recalcButton;
+        QPushButton *exitButton;
 
-	// Menu
-	QMenu *startMenu;
-	QMenu *editMenu;
-	QMenu *aboutMenu;
+        // Menu
+        QMenu *startMenu;
+        QMenu *editMenu;
+        QMenu *aboutMenu;
 
-	// Menu Actions
-	QAction *initAct;
-    	QAction *openAct;
-	QAction *saveAct;
-	QAction *exitAct;
-	QAction *clearAnsAct;
-	QAction *clearLogAct;
-	QAction *clearAllAct;
-	QAction *aboutAct;
-	QAction *helpAct;
+        // Menu Actions
+        QAction *initAct;
+            QAction *openAct;
+        QAction *saveAct;
+        QAction *exitAct;
+        QAction *clearAnsAct;
+        QAction *clearLogAct;
+        QAction *clearAllAct;
+        QAction *aboutAct;
+        QAction *helpAct;
 
-	void createDefaultPage();
-	void createLeftPage();
-	void createRightPage();
-    	void createMenus();
-	void createActions();
-	void reGenerate(int oldsize, int size);
+        void createDefaultPage();
+        void createLeftPage();
+        void createRightPage();
+            void createMenus();
+        void createActions();
+        void reGenerate(int oldsize, int size);
 
-	void initSetting();
+        void initSetting();
 
 private slots:
-	// 重新出题
-	void initNew();
-	void openFile();
-	void saveFile();
+        // 重新出题
+        void initNew();
+        void openFile();
+        void saveFile();
 
-	void clearAns();
-	void clearLog();
-	void clearAll();
+        void clearAns();
+        void clearLog();
+        void clearAll();
 
-	void about();
-	void help();
+        void about();
+        void help();
 
-	void settingChanged();	// 设置被修改
-	void diffChanged();	// 年级修改
-	void checkAnswer();	// 对答案
-	void showAnswer();	// 结果显示
+        void settingChanged();        // 设置被修改
+        void diffChanged();        // 年级修改
+        void checkAnswer();        // 对答案
+        void showAnswer();        // 结果显示
 
 protected:
 
