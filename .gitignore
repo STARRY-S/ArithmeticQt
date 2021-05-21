@@ -6,6 +6,8 @@ build/
 *.user
 out/
 .vs/
+*.bak
+*.out
 
 *~
 *.autosave
@@ -76,4 +78,3 @@ Thumbs.db
 # --------
 *.dll
 *.exe
-
