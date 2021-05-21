@@ -1,4 +1,4 @@
-#include "calculator.h"
+#include "calculator.hpp"
 
 // 表达式求值
 float Calculator::calculate(std::string exp)

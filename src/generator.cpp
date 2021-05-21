@@ -1,4 +1,4 @@
-#include "generator.h"
+#include "generator.hpp"
 
 // 生成表达式
 void Generator::generate(std::string &exp)
