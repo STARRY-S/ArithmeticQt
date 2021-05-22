@@ -9,6 +9,8 @@ out/
 *.bak
 *.out
 
+test*
+
 *~
 *.autosave
 *.a
