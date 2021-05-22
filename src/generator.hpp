@@ -50,16 +50,16 @@ public:
 
     virtual ~Generator() { }
 
-    void generate(std::string &exp) const;
+    void genExp(std::string &exp) const;
     void setMin(int _min);
     void setMax(int _max);
     void setSet(uint8_t _set);
+    uint8_t getSet() const;
     void setMode(uint8_t _mode);
 
     static char getRandoper();
     static int getRandNum();
     static int getRandNum(unsigned int a, unsigned int b);
-
 };
 
 #endif

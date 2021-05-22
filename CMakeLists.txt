@@ -9,6 +9,8 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CXX_FLAGS "-Wall -g")
+set(CMAKE_CXX_FLAGS ${CXX_FLAGS})
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
@@ -18,9 +20,13 @@ configure_file(images/favicon.ico images/favicon.ico COPYONLY)
 set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
-        src/mainwindow.h
-        src/arithmetic.h
+        src/mainwindow.hpp
+        src/arithmetic.hpp
         src/arithmetic.cpp
+        src/generator.hpp
+        src/generator.cpp
+        src/calculator.hpp
+        src/calculator.cpp
 )
 
 add_executable(

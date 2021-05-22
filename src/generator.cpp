@@ -36,7 +36,9 @@ void Generator::gen_normal(std::string &exp) const
 {
     int rand = getRandNum(0, 3);
     uint8_t optLabel = 0x01;
-    while ( !((optLabel << rand) & set) ) {
+    uint8_t tset = (set == 0x00) ? ADD : set;
+
+    while ( !((optLabel << rand) & tset) ) {
         rand = getRandNum(0, 3);
     }
     optLabel <<= rand;
@@ -91,7 +93,7 @@ void Generator::gen_npa(std::string &exp) const
 
 // 按照设置生成一条表达式到exp中
 // TODO: std::thread 创建一个线程并发生成表达式
-void Generator::generate(std::string &exp) const
+void Generator::genExp(std::string &exp) const
 {
     if (set & NPA) {
         gen_npa(exp);
@@ -104,25 +106,25 @@ void Generator::generate(std::string &exp) const
 
 void Generator::setMin(int _min)
 {
-    if (_min >= max) {
-        throw "min should less than max.";
-    }
-
-    if (_min < 0) {
-        throw "min should larger tham zero.";
-    }
+    // if (_min >= max) {
+    //     throw "min should less than max.";
+    // }
+    //
+    // if (_min < 0) {
+    //     throw "min should larger tham zero.";
+    // }
     this->min = _min;
 }
 
 void Generator::setMax(int _max)
 {
-    if (_max >= min) {
-        throw "max should larger than min";
-    }
-
-    if (_max <= 0) {
-        throw "max should larger than zero.";
-    }
+    // if (_max >= min) {
+    //     throw "max should larger than min";
+    // }
+    //
+    // if (_max <= 0) {
+    //     throw "max should larger than zero.";
+    // }
     this->max = _max;
 }
 
@@ -132,6 +134,11 @@ void Generator::setSet(uint8_t _set)
         this->set = 0x01;
     }
     this->set = _set;
+}
+
+uint8_t Generator::getSet() const
+{
+    return this->set;
 }
 
 void Generator::setMode(uint8_t _mode)
