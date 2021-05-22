@@ -11,8 +11,8 @@ bool Arithmetic::checkLineValid(std::string &str)
         return false;
     }
 
-    if (tmp.contains("+") || tmp.contains("-")
-        || tmp.contains("*") || tmp.contains("/"))
+    if (tmp.contains("+") || tmp.contains("−")
+        || tmp.contains("×") || tmp.contains("÷"))
     {
         return true;
     }
@@ -106,7 +106,6 @@ int Arithmetic::openFile(std::string &name)
 
     if (!valid) {
         throw "Invalid file.";
-        return -1;
     }
 
     int size = templist.size();

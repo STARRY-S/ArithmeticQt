@@ -332,8 +332,9 @@ void MainWindow::openFile()
             tr(".txt")).toStdString();
     std::cout << "LOG: Open file: " << fileName << std::endl;
 
-    int status = arithmetic->openFile(fileName);
-    if (status == -1) {
+    try {
+        arithmetic->openFile(fileName);
+    } catch(const char *const e) {
         QMessageBox msg;
         msg.setText("文件打开失败:\n请确保您打开的文件是本程序生成的文件\n");
         msg.exec();
