@@ -1,10 +1,31 @@
 #include "arithmetic.hpp"
 #include <fstream>
+#include <iostream>
 #include <QStringList>
+
+// 通过比较字符串中是否有运算符来判断打开的文件是否合法
+bool Arithmetic::checkLineValid(std::string &str)
+{
+    QString tmp = QString::fromStdString(str);
+    if (!tmp.contains("=")) {
+        return false;
+    }
+
+    if (tmp.contains("+") || tmp.contains("-")
+        || tmp.contains("*") || tmp.contains("/"))
+    {
+        return true;
+    }
+    return false;
+}
 
 Arithmetic::Arithmetic()
 {
     questionNum = 0;
+    setMin(10);
+    setMax(100);
+    setSet(ADD);
+    setMode(0x00);
 }
 
 Arithmetic::~Arithmetic()
@@ -12,67 +33,61 @@ Arithmetic::~Arithmetic()
     std::cout << "bye!" << std::endl;
 }
 
-QString Arithmetic::getQuestion(int i)
+QString Arithmetic::getQuestion(int i) const
 {
-    if (i >= (int) questionList.size()) {
-        std::cerr << "Error: out of range." << std::endl;
-        return nullptr;
-    }
-
-    QString a = this->questionList[i];
+    QString a = QString::fromStdString(questionList[i]);
     a.replace("*", " × ");
     a.replace("/", " ÷ ");
     a.replace("+", " + ");
     a.replace("-", " − ");
-    // a.append(" =");
     return a;
 }
 
-QString Arithmetic::getAnswer(int i)
+float Arithmetic::getAnswer(int i) const
 {
-    return answerList[i];
+    return this->answerList[i];
 }
 
-int Arithmetic::getQuestionNum()
+int Arithmetic::getQuestionNum() const
 {
     return questionNum;
 }
 
-// 题目数量
-void Arithmetic::setQuestionNum(int a)
+void Arithmetic::generate()
 {
-    questionNum = a;
+    questionList.resize(questionNum);
+    answerList.resize(questionNum);
+
+    // much simpler than before.
+    for (int i = 0; i < questionNum; i++) {
+        genExp(questionList[i]);
+        answerList[i] = calculate(questionList[i]);
+    }
 }
 
-// // 难度设定
-// void Arithmetic::setDifficulty(int max, int min, bool n, bool p)
-// {
-//         this->maxNum = max;
-//         this->minNum = min;
-//         this->hasNegative = n;
-//         this->hasPoint = p;
-// }
-
-// 通过比较字符串中是否有运算符来判断打开的文件是否合法
-bool Arithmetic::checkLineValid(std::string str)
+void Arithmetic::setQuestionNum(int n)
 {
-    QString tmp = QString::fromUtf8(str.c_str());
-    if (!tmp.contains(" = ")) {
-        return false;
+    this->questionNum = n;
+}
+
+// 难度设定
+void Arithmetic::setDifficulty(int max, int min, bool neg, bool flt)
+{
+    setMax(max);
+    setMin(min);
+    uint8_t mode = 0x00;
+    if (neg) {
+        mode |= NEG;
     }
 
-    if (tmp.contains("×") || tmp.contains("÷")
-        || tmp.contains("+") || tmp.contains("−"))
-    {
-        return true;
-    } else {
-        return false;
+    if (flt) {
+        mode |= FLT;
     }
-    return true;
+    setMode(mode);
 }
 
 // 导入文件中的题目和答案
-int Arithmetic::openFile(std::string name)
+int Arithmetic::openFile(std::string &name)
 {
     std::ifstream file;
     std::vector<std::string> templist;
@@ -84,23 +99,25 @@ int Arithmetic::openFile(std::string name)
         templist.push_back(tmp);
         if (!checkLineValid(tmp)) {
             valid = false;
+            break;
         }
     }
     file.close();
 
     if (!valid) {
-        std::cerr << "Error: read file error." << std::endl;
+        throw "Invalid file.";
         return -1;
     }
 
     int size = templist.size();
-    questionNum = size;
+    setQuestionNum(size);
     questionList.resize(size);
-    QStringList listTmp;
     for (int i = 0; i < size; i++) {
-        listTmp = QString::fromUtf8(templist[i].c_str()).split(" = ");
-        questionList[i] =  listTmp[0];
-        answerList[i] = listTmp[1];
+        // s.substr(0, s.find("xx"));
+        int pos = templist[i].find("=");
+        int slen = templist[i].length();
+        questionList[i] = templist[i].substr(0, pos);
+        answerList[i] = std::stof(templist[i].substr(pos+1, slen));
     }
 
     return 0;

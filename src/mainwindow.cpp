@@ -1,5 +1,7 @@
-#include "mainwindow.h"
+#include "mainwindow.hpp"
+#include "generator.hpp"
 #include <fstream>
+#include <sstream>
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -8,10 +10,10 @@ MainWindow::MainWindow(QWidget *parent)
     // 默认生成加减乘除
     arithmetic = new Arithmetic();
     // 初始化预设为加减乘除
-    arithmetic->setSet( ARITHMETIC_PLUS
-                        | ARITHMETIC_MINUS
-                        | ARITHMETIC_TIMES
-                        | ARITHMETIC_DIVID);
+    arithmetic->setSet(
+        Generator::ADD | Generator::SUB |
+        Generator::MUL | Generator::DIV
+    );
     // 初始化题目数量为20
     arithmetic->setQuestionNum(DEFAULT_QUESTION_NUM);
     // 初始化难度
@@ -326,11 +328,11 @@ void MainWindow::initNew()
 void MainWindow::openFile()
 {
     std::cout<< "SLOT_LOG: Open File" << std::endl;
-    QString fileName = QFileDialog::getOpenFileName(this, tr("打开文件"),
-            tr(".txt"));
-    std::cout << "LOG: Open file: " << fileName.toStdString() << std::endl;
+    std::string fileName =  QFileDialog::getOpenFileName(this, tr("打开文件"),
+            tr(".txt")).toStdString();
+    std::cout << "LOG: Open file: " << fileName << std::endl;
 
-    int status = arithmetic->openFile(fileName.toStdString());
+    int status = arithmetic->openFile(fileName);
     if (status == -1) {
         QMessageBox msg;
         msg.setText("文件打开失败:\n请确保您打开的文件是本程序生成的文件\n");
@@ -351,8 +353,8 @@ void MainWindow::saveFile()
     outstream.open(fileName.toStdString(), std::ios::out | std::ios::trunc);
     int size = questionLabel.size();
     for (int i = 0; i < size; i++) {
-        outstream << arithmetic->getQuestion(i).toStdString() + " = " +
-                     arithmetic->getAnswer(i).toStdString()
+        outstream << arithmetic->getQuestion(i).toStdString() + "=" <<
+                     arithmetic->getAnswer(i)
                      << std::endl;
     }
     outstream.close();
@@ -412,10 +414,10 @@ void MainWindow::help()
     QMessageBox msg;
     msg.setText("使用说明：\n"
                 "左侧为答题区域，将运算结果填写在题目后方文本框中\n"
-                    "右侧为设置区域，可以设置难度，运算模式等\n"
+                "右侧为设置区域，可以设置难度，运算模式等\n"
                 "对答案后会在作答结果中显示每道题的作答情况\n"
                 "混合运算包含加减乘除和小数和负数的运算\n"
-                    "小数运算时需要保留小数点后2位");
+                "小数运算时需要保留小数点后2位");
     msg.exec();
 }
 
@@ -426,22 +428,22 @@ void MainWindow::settingChanged()
     unsigned char newLevel = 0x00;
 
     if (checkBoxs[PLUS]->isChecked()) {
-        newLevel |= ARITHMETIC_PLUS;
+        newLevel |= Generator::ADD;
     }
     if (checkBoxs[MINUS]->isChecked()) {
-        newLevel |= ARITHMETIC_MINUS;
+        newLevel |= Generator::SUB;
     }
     if (checkBoxs[TIME]->isChecked()) {
-        newLevel |= ARITHMETIC_TIMES;
+        newLevel |= Generator::MUL;
     }
     if (checkBoxs[DIVID]->isChecked()) {
-        newLevel |= ARITHMETIC_DIVID;
+        newLevel |= Generator::DIV;
     }
     if (checkBoxs[PARENT]->isChecked()) {
-        newLevel |= ARITHMETIC_PAREN;
+        newLevel |= Generator::PAR;
     }
     if (checkBoxs[NOPAR]->isChecked()) {
-        newLevel |= ARITHMETIC_NOPAR;
+        newLevel |= Generator::NPA;
     }
     printf("LOG: Change state from 0X%02X to 0X%02X\n", oldLevel, newLevel);
     arithmetic->setSet(newLevel);
@@ -471,11 +473,11 @@ void MainWindow::checkAnswer()
 
     int size = arithmetic->getQuestionNum();
     QString tmp;
-    double a, b;
+    float a, b;
     QString log;
     for (int i = 0; i < size; i++) {
-        a = calculateLineEdit[i]->text().toDouble();
-        b = arithmetic->getAnswer(i).toDouble();
+        a = calculateLineEdit[i]->text().toFloat();
+        b = arithmetic->getAnswer(i);
         if (calculateLineEdit[i]->text().length()) {
             ++insertedNum;
             if (abs(a - b) < 0.005) {
@@ -509,13 +511,16 @@ void MainWindow::showAnswer()
     std::cout<< "SLOT_LOG: Show Answer" << std::endl;
     answerShowing = !answerShowing;
     int size = arithmetic->getQuestionNum();
-    QString tmp;
     for (int i = 0; i < size; i++) {
+        std::stringstream tmp;
+        tmp.precision(2);
         if (answerShowing) {
-            tmp = arithmetic->getQuestion(i) + " = " + arithmetic->getAnswer(i);
+            tmp << std::fixed
+                  << arithmetic->getQuestion(i).toStdString() << " = "
+                  << arithmetic->getAnswer(i);
         } else {
-            tmp = arithmetic->getQuestion(i);
+            tmp << arithmetic->getQuestion(i).toStdString();
         }
-        questionLabel[i]->setText(tmp);
+        questionLabel[i]->setText(QString::fromStdString(tmp.str()));
     }
 }
