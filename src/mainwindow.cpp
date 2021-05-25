@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <thread>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,7 +23,9 @@ MainWindow::MainWindow(QWidget *parent)
                             HAS_NEGATIVE,
                             HAS_POINT);
     // 生成指定数量的题目
-    arithmetic->generate();
+    std::thread gen_thread(std::bind(&Arithmetic::generate, arithmetic));
+    gen_thread.join();
+    // arithmetic->generate();
     this->setWindowTitle(tr("四则运算计算器"));
     this->resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
@@ -308,7 +311,9 @@ void MainWindow::initNew()
     std::cout<< "SLOT_LOG: Generate New" << std::endl;
     int oldsize = calculateLineEdit.size();
     int size = arithmetic->getQuestionNum();
-    arithmetic->generate();
+    // arithmetic->generate();
+    std::thread gen_thread(std::bind(&Arithmetic::generate, arithmetic));
+    gen_thread.join();
     // 如果题目数量没有改变，仅修改Label即可
     if (oldsize == size) {
         for (int i = 0; i < size; i++) {

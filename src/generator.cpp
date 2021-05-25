@@ -92,7 +92,6 @@ void Generator::gen_npa(std::string &exp) const
 }
 
 // 按照设置生成一条表达式到exp中
-// TODO: std::thread 创建一个线程并发生成表达式
 void Generator::genExp(std::string &exp) const
 {
     if (set & NPA) {

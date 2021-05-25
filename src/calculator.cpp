@@ -67,7 +67,7 @@ void Calculator::handleOperator(std::stack<float> &number,
     // }
 }
 
-float Calculator::calculate(std::string &exp)
+float Calculator::calculate(const std::string &exp)
 {
     std::stack<float> number;
     std::stack<char> opera;

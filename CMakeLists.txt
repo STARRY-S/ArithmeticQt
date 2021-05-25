@@ -9,7 +9,7 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CXX_FLAGS "-Wall -g")
+set(CXX_FLAGS "-Wall -pthread")
 set(CMAKE_CXX_FLAGS ${CXX_FLAGS})
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)

@@ -58,7 +58,6 @@ void Arithmetic::generate()
     questionList.resize(questionNum);
     answerList.resize(questionNum);
 
-    // much simpler than before.
     for (int i = 0; i < questionNum; i++) {
         genExp(questionList[i]);
         answerList[i] = calculate(questionList[i]);

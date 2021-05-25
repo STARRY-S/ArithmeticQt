@@ -20,7 +20,7 @@ private:
 public:
     Calculator() = default;
 
-    static float calculate(std::string &exp);
+    static float calculate(const std::string &exp);
 
     virtual ~Calculator() { }
 };
